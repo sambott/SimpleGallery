@@ -4,14 +4,17 @@ using System.IO;
 
 namespace SimpleGallery.Core
 {
-    public interface IMediaItem
+    public interface IMediaItem : IEnumerable<IMediaItem>
     {
         string Name { get; }
         string Path { get; }
-        string ImageUrl { get; }
-        string Thumbnail { get; }
+        string MediaUrl { get; }
+        string ThumbnailUrl { get; }
         bool IsAlbum { get; }
         IEnumerable<IMediaItem> Children { get; }
-        Stream GenerateThumbnail();
+
+        Stream GetMedia();
+        Stream GetThumbnail();
+        void GenerateThumbnail(Stream outputStream);
     }
 }
