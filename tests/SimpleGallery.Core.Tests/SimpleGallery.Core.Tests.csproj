@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <IsPackable>false</IsPackable>
@@ -10,5 +10,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SimpleGallery.Core\SimpleGallery.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="res/P8050597.JPG" CopyToOutputDirectory="Always" />
   </ItemGroup>
 </Project>
