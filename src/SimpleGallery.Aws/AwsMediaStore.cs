@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Amazon.S3;
@@ -18,6 +19,12 @@ namespace SimpleGallery.Aws
             _client = client;
             _bucketName = bucketName;
             _keyPrefix = keyPrefix;
+        }
+
+        public async Task ReadItem(string path, Stream output)
+        {
+            var response = await _client.GetObjectAsync(_bucketName, _keyPrefix + path);
+            response.ResponseStream.CopyTo(output);
         }
 
         public IObservable<S3Object> GetItems(string path = "")

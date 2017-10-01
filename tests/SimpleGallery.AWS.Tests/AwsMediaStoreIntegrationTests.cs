@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -13,8 +14,8 @@ namespace SimpleGallery.AWS.Tests
 {
     public class AwsMediaStoreIntegrationTests
     {
-        private string _bucketName = "sam-testing-bucket";
-        private RegionEndpoint _region = RegionEndpoint.EUWest1;
+        private const string _bucketName = "sam-testing-bucket";
+        private readonly RegionEndpoint _region = RegionEndpoint.EUWest1;
 
         private readonly string[] _expectedKeys = new[]
         {
@@ -50,28 +51,48 @@ namespace SimpleGallery.AWS.Tests
             "2009-08-06 Will's Passing Out/P8060607.JPG",
             "2009-08-06 Will's Passing Out/P8060608.JPG",
         };
+        private readonly string _testImage = "2009-08-06 Will's Passing Out/P8050597.JPG";
 
         [IntegrationFact]
         public async Task CanListBucket()
         {
-            var s3 = new AmazonS3Client(_region);
-            var mediaStore = new AwsMediaStore(s3, _bucketName);
+            using (var s3 = new AmazonS3Client(_region))
+            {
+                var mediaStore = new AwsMediaStore(s3, _bucketName);
 
-            var objects = await mediaStore.GetItems().ToList().ToTask();
-            
-            Assert.Equal(_expectedKeys.ToHashSet(), objects.Select(o => o.Key).ToHashSet());
+                var objects = await mediaStore.GetItems().ToList().ToTask();
+
+                Assert.Equal(_expectedKeys.ToHashSet(), objects.Select(o => o.Key).ToHashSet());
+            }
         }
 
         [IntegrationFact]
         public async Task CanListBucketAlbum()
         {
             var album = "2009-08-06 Will's Passing Out/";
-            var s3 = new AmazonS3Client(_region);
-            var mediaStore = new AwsMediaStore(s3, _bucketName);
+            using (var s3 = new AmazonS3Client(_region))
+            {
+                var mediaStore = new AwsMediaStore(s3, _bucketName);
 
-            var objects = await mediaStore.GetItems(album).ToList().ToTask();
-            
-            Assert.Equal(_expectedKeys.Where(s => s.StartsWith(album)).ToHashSet(), objects.Select(o => o.Key).ToHashSet());
+                var objects = await mediaStore.GetItems(album).ToList().ToTask();
+
+                Assert.Equal(_expectedKeys.Where(s => s.StartsWith(album)).ToHashSet(),
+                    objects.Select(o => o.Key).ToHashSet());
+            }
+        }
+
+        [IntegrationFact]
+        public async Task CanGetObjectData()
+        {
+            using (var s3 = new AmazonS3Client(_region))
+            using (var dest = new MemoryStream())
+            {
+                var mediaStore = new AwsMediaStore(s3, _bucketName);
+
+                await mediaStore.ReadItem(_testImage, dest);
+
+                Assert.Equal(1108509, dest.Length);
+            }
         }
     }
 }

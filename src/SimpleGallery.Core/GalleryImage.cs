@@ -22,7 +22,7 @@ namespace SimpleGallery.Core
             using (Stream imageStream = GetMedia())
             using (Image<Rgba32> image = Image.Load(imageStream, out var format))
             {
-                image.Mutate(ctx=>ctx.Resize(_thumbnailSize.Item1, _thumbnailSize.Item2));
+                image.Mutate(ctx => ctx.Resize(_thumbnailSize.Item1, _thumbnailSize.Item2));
                 image.Save(outputStream, format);
             }
         }
