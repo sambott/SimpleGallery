@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleGallery.Core", "src\S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleGallery.Core.Tests", "tests\SimpleGallery.Core.Tests\SimpleGallery.Core.Tests.csproj", "{788491D2-6FA1-4E3A-9EB3-FA57A81A74BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleGallery.Api", "src\SimpleGallery.Api\SimpleGallery.Api.csproj", "{933AAA64-0235-4CCB-821B-F628918F7782}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{788491D2-6FA1-4E3A-9EB3-FA57A81A74BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{788491D2-6FA1-4E3A-9EB3-FA57A81A74BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{788491D2-6FA1-4E3A-9EB3-FA57A81A74BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{933AAA64-0235-4CCB-821B-F628918F7782}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{933AAA64-0235-4CCB-821B-F628918F7782}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{933AAA64-0235-4CCB-821B-F628918F7782}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{933AAA64-0235-4CCB-821B-F628918F7782}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,5 +52,6 @@ Global
 		{C36FACFB-D921-49AF-971C-48D9FBF95222} = {0E6ADDE2-6AFB-4606-AF12-A9A35ABA1C78}
 		{EBC9F3C2-EB3C-4867-9627-7ADBB92DEF44} = {0E6ADDE2-6AFB-4606-AF12-A9A35ABA1C78}
 		{788491D2-6FA1-4E3A-9EB3-FA57A81A74BC} = {D7573B30-D311-4FB1-BF3E-BB7BD8B99587}
+		{933AAA64-0235-4CCB-821B-F628918F7782} = {0E6ADDE2-6AFB-4606-AF12-A9A35ABA1C78}
 	EndGlobalSection
 EndGlobal

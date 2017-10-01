@@ -10,5 +10,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SimpleGallery.AWS\SimpleGallery.AWS.csproj" />
+    <ProjectReference Include="..\..\src\SimpleGallery.Aws\SimpleGallery.Aws.csproj" />
+    <ProjectReference Include="..\SimpleGallery.Core.Tests\SimpleGallery.Core.Tests.csproj">
+      <Project>{788491D2-6FA1-4E3A-9EB3-FA57A81A74BC}</Project>
+      <Name>SimpleGallery.Core.Tests</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

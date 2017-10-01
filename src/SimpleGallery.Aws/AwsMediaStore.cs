@@ -13,20 +13,21 @@ namespace SimpleGallery.Aws
         private readonly IAmazonS3 _client;
         private readonly string _keyPrefix;
 
-        public AwsMediaStore(IAmazonS3 client, string bucketName, string keyPrefix)
+        public AwsMediaStore(IAmazonS3 client, string bucketName, string keyPrefix = "")
         {
-            this._client = client;
+            _client = client;
             _bucketName = bucketName;
             _keyPrefix = keyPrefix;
         }
 
-        IObservable<S3Object> GetItems()
+        public IObservable<S3Object> GetItems(string path = "")
         {
             return Observable.Create<S3Object>(async (obs, token) =>
             {
                 var request = new ListObjectsV2Request
                 {
                     BucketName = _bucketName,
+                    Prefix = _keyPrefix + path,
                     MaxKeys = 150
                 };
                 ListObjectsV2Response response;
