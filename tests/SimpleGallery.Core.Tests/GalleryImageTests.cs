@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using Xunit;
 
@@ -20,9 +21,9 @@ namespace SimpleGallery.Core.Tests
             public override string Path => "";
             public override string MediaUrl => "";
             public override string ThumbnailUrl => "";
-            public override Stream GetMedia() => _mediaStream;
+            public override Task<Stream> GetMedia() => Task.FromResult(_mediaStream);
 
-            public override Stream GetThumbnail()
+            public override Task<Stream> GetThumbnail()
             {
                 throw new NotImplementedException();
             }

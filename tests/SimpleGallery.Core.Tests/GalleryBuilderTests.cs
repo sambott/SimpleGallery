@@ -8,33 +8,57 @@ namespace SimpleGallery.Core.Tests
 {
     public class GalleryBuilderTests
     {
-        private readonly IEnumerable<IMediaItem> _sampleList;
-        
-        public GalleryBuilderTests()
-        {
-            _sampleList = new List<IMediaItem>
-            {
-                GenerateMediaItem("test/item1"),
-                GenerateMediaItem("test/item2"),
-                GenerateMediaItem("item3"),
-            };
-        }
 
         private IMediaItem GenerateMediaItem(string path)
         {
-            return new Mock<IMediaItem>()
-                .SetupProperty(i => i.Path, path)
-                .SetupProperty(i => i.Name, path.Split('/').Last())
-                .Object;
+            var item = new Mock<IMediaItem>();
+            item.Setup(i => i.Path).Returns(path);
+            item.Setup(i => i.Name).Returns(path.Split('/').Last());
+            return item.Object;
         }
 
         [Fact]
-        public Task BuildFindsDelta()
+        public async Task FindsDelta()
         {
+            var galleryContentItems = new List<IMediaItem>
+                {
+                    GenerateMediaItem("test/item1"),
+                    GenerateMediaItem("test/item2"),
+                    GenerateMediaItem("item4"),
+                    GenerateMediaItem("item3"),
+                };
+            var thumbnailItems = new List<IMediaItem>
+                {
+                    GenerateMediaItem("test/item1"),
+                    GenerateMediaItem("test/item2"),
+                    GenerateMediaItem("test/item3"),
+                    GenerateMediaItem("item3"),
+                };
             var mockMediaStore = new Mock<IMediaStore>();
-            mockMediaStore.Setup(ms => ms.GetAllItems()).ReturnsAsync(_sampleList);
+            mockMediaStore.Setup(ms => ms.GetAllItems()).ReturnsAsync(galleryContentItems);
+            mockMediaStore.Setup(ms => ms.GetAllThumbnails()).ReturnsAsync(thumbnailItems);
+
+            var builder = new GalleryBuilder(mockMediaStore.Object);
+            var (added, removed, remaining) = await builder.GetAddedRemovedRemaining();
             
-            mockMediaStore.
+            var expectedAdded = new HashSet<string>
+            {
+               "item4",
+            };
+            var expectedRemoved = new HashSet<string>
+            {
+                "test/item3",
+            };
+            var expectedRemaining = new HashSet<string>
+            {
+                "test/item1",
+                "test/item2",
+                "item3",
+            };
+
+            Assert.Equal(expectedAdded, new HashSet<string>(added.Select(i => i.Path)));
+            Assert.Equal(expectedRemoved, new HashSet<string>(removed.Select(i => i.Path)));
+            Assert.Equal(expectedRemaining, new HashSet<string>(remaining.Select(i => i.Path)));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Amazon.S3.Model;
 using SimpleGallery.Core;
 
@@ -46,12 +47,12 @@ namespace SimpleGallery.Aws
         public override string MediaUrl { get; }
         public override string ThumbnailUrl { get; }
 
-        public override Stream GetMedia()
+        public override Task<Stream> GetMedia()
         {
             throw new System.NotImplementedException();
         }
 
-        public override Stream GetThumbnail()
+        public override Task<Stream> GetThumbnail()
         {
             throw new System.NotImplementedException();
         }

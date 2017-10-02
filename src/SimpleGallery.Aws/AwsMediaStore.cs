@@ -59,11 +59,13 @@ namespace SimpleGallery.Aws
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<IMediaItem>> GetAllItems()
+
+        public async Task<IEnumerable<IMediaItem>> GetAllItems()
         {
-            return GetS3Objects()
+            var images = await GetS3Objects()
                 .Select(obj => new AwsGalleryImage(_thumnailSize, obj, this))
                 .ToList().ToTask();
+            return images;
         }
 
         public Task<IEnumerable<IMediaItem>> GetAllThumbnails()
@@ -77,6 +79,16 @@ namespace SimpleGallery.Aws
         }
 
         public Task RemoveThumbnail(IMediaItem path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateIndex(IMediaItem item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveIndex(IMediaItem item)
         {
             throw new NotImplementedException();
         }
