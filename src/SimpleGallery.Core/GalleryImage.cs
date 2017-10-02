@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 
 namespace SimpleGallery.Core
@@ -14,12 +15,12 @@ namespace SimpleGallery.Core
         public abstract string MediaUrl { get; }
         public abstract string ThumbnailUrl { get; }
         
-        public abstract Stream GetMedia();
-        public abstract Stream GetThumbnail();
+        public abstract Task<Stream> GetMedia();
+        public abstract Task<Stream> GetThumbnail();
         
-        public void GenerateThumbnail(Stream outputStream)
+        public async Task GenerateThumbnail(Stream outputStream)
         {
-            using (Stream imageStream = GetMedia())
+            using (Stream imageStream = await GetMedia())
             using (Image<Rgba32> image = Image.Load(imageStream, out var format))
             {
                 image.Mutate(ctx => ctx.Resize(_thumbnailSize.Item1, _thumbnailSize.Item2));

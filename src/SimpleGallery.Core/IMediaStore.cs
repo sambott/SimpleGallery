@@ -1,13 +1,22 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using SixLabors.ImageSharp;
 
 namespace SimpleGallery.Core
 {
     public interface IMediaStore
     {
-        IGalleryAlbum GetRootAlbum();
+        Task<IGalleryAlbum> GetRootAlbum(); // needed?
 
-        Task StoreThumnail(string path, IMediaItem item);
+        Task<IEnumerable<IMediaItem>> GetAllItems();
+
+        Task<IEnumerable<IMediaItem>> GetAllThumbnails();
+
+        Task UpdateThumbnail(IMediaItem item);
+
+        Task RemoveThumbnail(IMediaItem item);
+
+        Task UpdateIndex(IMediaItem item);
+
+        Task RemoveIndex(IMediaItem item);
     }
 }

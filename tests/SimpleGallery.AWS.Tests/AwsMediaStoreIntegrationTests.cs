@@ -60,7 +60,7 @@ namespace SimpleGallery.AWS.Tests
             {
                 var mediaStore = new AwsMediaStore(s3, _bucketName);
 
-                var objects = await mediaStore.GetItems().ToList().ToTask();
+                var objects = await mediaStore.GetS3Objects().ToList().ToTask();
 
                 Assert.Equal(_expectedKeys.ToHashSet(), objects.Select(o => o.Key).ToHashSet());
             }
@@ -74,7 +74,7 @@ namespace SimpleGallery.AWS.Tests
             {
                 var mediaStore = new AwsMediaStore(s3, _bucketName);
 
-                var objects = await mediaStore.GetItems(album).ToList().ToTask();
+                var objects = await mediaStore.GetS3Objects(album).ToList().ToTask();
 
                 Assert.Equal(_expectedKeys.Where(s => s.StartsWith(album)).ToHashSet(),
                     objects.Select(o => o.Key).ToHashSet());
