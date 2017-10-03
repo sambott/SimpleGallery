@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
@@ -8,10 +9,22 @@ namespace SimpleGallery.Aws
 {
     public sealed class AwsGalleryImage : GalleryImage
     {
-        private readonly S3Object _underlying;
-        private readonly AwsMediaStore _store;
-        private readonly string _bucketPrefix;
         private readonly string _hash;
+        private readonly AwsMediaStore _store;
+        private readonly S3Object _underlying;
+
+        public AwsGalleryImage(S3Object underlying, AwsMediaStore store)
+        {
+            _underlying = underlying;
+            _store = store;
+            Path = underlying.Key;
+            _hash = underlying.ETag;
+        }
+
+        public override string Name => Path.Split('/').Last();
+        public override string Path { get; }
+        public override string MediaUrl { get; }
+        public override string ThumbnailUrl { get; }
 
         private bool Equals(AwsGalleryImage other)
         {
@@ -22,7 +35,7 @@ namespace SimpleGallery.Aws
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((AwsGalleryImage) obj);
         }
 
@@ -34,27 +47,14 @@ namespace SimpleGallery.Aws
             }
         }
 
-        public AwsGalleryImage((int, int) thumbnailSize, S3Object underlying, AwsMediaStore store) : base(thumbnailSize)
-        {
-            _underlying = underlying;
-            _store = store;
-            Path = underlying.Key.Remove(0, _store.BucketPrefix.Length);
-            _hash = underlying.ETag;
-        }
-
-        public override string Name => Path.Split('/').Last();
-        public override string Path { get; }
-        public override string MediaUrl { get; }
-        public override string ThumbnailUrl { get; }
-
         public override Task<Stream> GetMedia()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override Task<Stream> GetThumbnail()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

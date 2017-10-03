@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -12,12 +11,11 @@ using Xunit;
 
 namespace SimpleGallery.AWS.Tests
 {
-    public class AwsMediaStoreIntegrationTests
+    public class S3HandlerIntegrationTests
     {
         private const string _bucketName = "sam-testing-bucket";
-        private readonly RegionEndpoint _region = RegionEndpoint.EUWest1;
 
-        private readonly string[] _expectedKeys = new[]
+        private readonly string[] _expectedKeys =
         {
             "1985-2009 Grace and Sam old Photos/Sam/2000-05-19 Ducks/Ducks1.jpg",
             "1985-2009 Grace and Sam old Photos/Sam/2000-05-19 Ducks/Ducks2.jpg",
@@ -49,8 +47,10 @@ namespace SimpleGallery.AWS.Tests
             "2009-08-06 Will's Passing Out/P8060605.JPG",
             "2009-08-06 Will's Passing Out/P8060606.JPG",
             "2009-08-06 Will's Passing Out/P8060607.JPG",
-            "2009-08-06 Will's Passing Out/P8060608.JPG",
+            "2009-08-06 Will's Passing Out/P8060608.JPG"
         };
+
+        private readonly RegionEndpoint _region = RegionEndpoint.EUWest1;
         private readonly string _testImage = "2009-08-06 Will's Passing Out/P8050597.JPG";
 
         [IntegrationFact]
@@ -58,9 +58,9 @@ namespace SimpleGallery.AWS.Tests
         {
             using (var s3 = new AmazonS3Client(_region))
             {
-                var mediaStore = new AwsMediaStore(s3, _bucketName);
+                var s3handler = new S3Handler(s3, _bucketName);
 
-                var objects = await mediaStore.GetS3Objects().ToList().ToTask();
+                var objects = await s3handler.GetS3Objects().ToList().ToTask();
 
                 Assert.Equal(_expectedKeys.ToHashSet(), objects.Select(o => o.Key).ToHashSet());
             }
@@ -72,9 +72,9 @@ namespace SimpleGallery.AWS.Tests
             var album = "2009-08-06 Will's Passing Out/";
             using (var s3 = new AmazonS3Client(_region))
             {
-                var mediaStore = new AwsMediaStore(s3, _bucketName);
+                var s3handler = new S3Handler(s3, _bucketName);
 
-                var objects = await mediaStore.GetS3Objects(album).ToList().ToTask();
+                var objects = await s3handler.GetS3Objects(album).ToList().ToTask();
 
                 Assert.Equal(_expectedKeys.Where(s => s.StartsWith(album)).ToHashSet(),
                     objects.Select(o => o.Key).ToHashSet());
@@ -87,9 +87,9 @@ namespace SimpleGallery.AWS.Tests
             using (var s3 = new AmazonS3Client(_region))
             using (var dest = new MemoryStream())
             {
-                var mediaStore = new AwsMediaStore(s3, _bucketName);
+                var s3handler = new S3Handler(s3, _bucketName);
 
-                await mediaStore.ReadItem(_testImage, dest);
+                await s3handler.ReadItem(_testImage, dest);
 
                 Assert.Equal(1108509, dest.Length);
             }

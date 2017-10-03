@@ -8,9 +8,7 @@ namespace SimpleGallery.Core.Tests
         public IntegrationFactAttribute()
         {
             if (!Debugger.IsAttached)
-            {
                 Skip = "Only running integration tests interactively.";
-            }
         }
     }
 }

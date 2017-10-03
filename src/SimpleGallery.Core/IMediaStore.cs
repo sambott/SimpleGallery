@@ -5,14 +5,12 @@ namespace SimpleGallery.Core
 {
     public interface IMediaStore
     {
-        Task<IGalleryAlbum> GetRootAlbum(); // needed?
-
         Task<IEnumerable<IMediaItem>> GetAllItems();
 
         Task<IEnumerable<IMediaItem>> GetAllThumbnails();
 
         Task<IEnumerable<IMediaItem>> GetIndexItems();
-        
+
         Task UpdateThumbnail(IMediaItem item);
 
         Task RemoveThumbnail(IMediaItem item);

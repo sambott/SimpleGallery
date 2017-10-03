@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 
 namespace SimpleGallery.Core
@@ -25,7 +23,7 @@ namespace SimpleGallery.Core
 
             var thumbnailDeltaPaths = thumbnailPathDict.Keys.Except(indexPathDict.Keys);
             var indexDeltaPaths = indexPathDict.Keys.Except(thumbnailPathDict.Keys).ToList();
-            
+
             thumbnailDeltaPaths
                 .Select(path => thumbnailPathDict[path])
                 .ToList()
@@ -36,7 +34,8 @@ namespace SimpleGallery.Core
                 .ForEach(async item => await _store.RemoveIndex(item));
         }
 
-        public async Task<(IEnumerable<IMediaItem>, IEnumerable<IMediaItem>, IEnumerable<IMediaItem>)> GetAddedRemovedRemaining()
+        public async Task<(IEnumerable<IMediaItem>, IEnumerable<IMediaItem>, IEnumerable<IMediaItem>)>
+            GetAddedRemovedRemaining()
         {
             var galleryContentItems = await _store.GetAllItems().ConfigureAwait(false);
             var indexItems = await _store.GetIndexItems().ConfigureAwait(false);
@@ -51,20 +50,20 @@ namespace SimpleGallery.Core
             var added = addedPaths.Select(path => galleryContentPathDict[path]);
             var removed = removedPaths.Select(path => indexPathDict[path]);
             var remaining = remainingPaths.Select(path => galleryContentPathDict[path]);
-            
+
             return (added, removed, remaining);
         }
 
         public async Task Build()
         {
             //make thumbnails and index consistent
-            
+
             //check for added/removed
-            
+
             //check for updated
-            
+
             //remove removed and updated
-            
+
             //add added and updated
         }
     }
