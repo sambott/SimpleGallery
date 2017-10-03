@@ -73,6 +73,11 @@ namespace SimpleGallery.Aws
             throw new NotImplementedException();
         }
 
+        public Task<IEnumerable<IMediaItem>> GetIndexItems()
+        {
+            throw new NotImplementedException();
+        }
+
         public Task UpdateThumbnail(IMediaItem item)
         {
             throw new NotImplementedException();

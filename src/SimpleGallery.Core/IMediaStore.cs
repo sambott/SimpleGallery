@@ -11,6 +11,8 @@ namespace SimpleGallery.Core
 
         Task<IEnumerable<IMediaItem>> GetAllThumbnails();
 
+        Task<IEnumerable<IMediaItem>> GetIndexItems();
+        
         Task UpdateThumbnail(IMediaItem item);
 
         Task RemoveThumbnail(IMediaItem item);
