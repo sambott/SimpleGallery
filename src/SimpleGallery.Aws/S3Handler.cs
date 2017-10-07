@@ -7,7 +7,7 @@ using Amazon.S3.Model;
 
 namespace SimpleGallery.Aws
 {
-    public class S3Handler : IS3Handler
+    public sealed class S3Handler : IS3Handler
     {
         private readonly string _bucketName;
         private readonly IAmazonS3 _client;

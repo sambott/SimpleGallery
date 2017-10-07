@@ -10,7 +10,7 @@ using SimpleGallery.Core;
 
 namespace SimpleGallery.Aws
 {
-    public class AwsMediaStore : IMediaStore
+    public sealed class AwsMediaStore : IMediaStore
     {
         private readonly IS3Handler _itemSource;
         private readonly IS3Handler _thumbnailSource;

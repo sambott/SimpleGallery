@@ -36,8 +36,10 @@ namespace SimpleGallery.Core.Tests
             var mockMediaStore = new Mock<IMediaStore>();
             mockMediaStore.Setup(ms => ms.GetAllThumbnails()).ReturnsAsync(thumbnailItems);
             mockMediaStore.Setup(ms => ms.GetIndexItems()).ReturnsAsync(indexItems);
-
+            mockMediaStore.Setup(ms => ms.GetAllItems()).ReturnsAsync(new List<IMediaItem>());
+            
             var builder = new GalleryBuilder(mockMediaStore.Object);
+            await builder.LoadItemSources();
 
             mockMediaStore.Setup(ms =>
                 ms.RemoveThumbnail(
@@ -51,7 +53,7 @@ namespace SimpleGallery.Core.Tests
                 )
             ).Verifiable();
 
-            await builder.CheckThumbnailAndIndexConsistent();
+            builder.MakeThumbnailAndIndexConsistent();
 
             mockMediaStore.Verify();
         }
@@ -76,10 +78,12 @@ namespace SimpleGallery.Core.Tests
             var mockMediaStore = new Mock<IMediaStore>();
             mockMediaStore.Setup(ms => ms.GetAllItems()).ReturnsAsync(galleryContentItems);
             mockMediaStore.Setup(ms => ms.GetIndexItems()).ReturnsAsync(indexItems);
+            mockMediaStore.Setup(ms => ms.GetAllThumbnails()).ReturnsAsync(new List<IMediaItem>());
 
             var builder = new GalleryBuilder(mockMediaStore.Object);
+            await builder.LoadItemSources();
 
-            var (added, removed, remaining) = await builder.GetAddedRemovedRemaining();
+            var (added, removed, remaining) = builder.GetAddedRemovedRemaining();
 
             var expectedAdded = new HashSet<string>
             {

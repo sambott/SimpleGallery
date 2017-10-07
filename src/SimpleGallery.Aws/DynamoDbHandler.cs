@@ -1,6 +1,6 @@
 ﻿namespace SimpleGallery.Aws
 {
-    public class DynamoDbHandler
+    public sealed class DynamoDbHandler
     {
     }
 }

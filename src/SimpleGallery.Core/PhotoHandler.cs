@@ -5,7 +5,7 @@ using SixLabors.ImageSharp;
 
 namespace SimpleGallery.Core
 {
-    public class PhotoHandler : AbstractMediaHandler
+    public sealed class PhotoHandler : AbstractMediaHandler
     {
         private readonly HashSet<string> _supported = new HashSet<string>
         {

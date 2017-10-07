@@ -4,67 +4,92 @@ using System.Threading.Tasks;
 
 namespace SimpleGallery.Core
 {
-    public class GalleryBuilder
+    public sealed class GalleryBuilder
     {
         private readonly IMediaStore _store;
+        private Dictionary<string, IMediaItem> _indexPathDict;
+        private Dictionary<string, IMediaItem> _thumbnailPathDict;
+        private Dictionary<string, IMediaItem> _galleryContentPathDict;
 
         public GalleryBuilder(IMediaStore store)
         {
             _store = store;
         }
 
-        public async Task CheckThumbnailAndIndexConsistent()
+        public async Task LoadItemSources()
         {
-            var thumbnailItems = await _store.GetAllThumbnails().ConfigureAwait(false);
+            var galleryContentItems = await _store.GetAllItems().ConfigureAwait(false);
             var indexItems = await _store.GetIndexItems().ConfigureAwait(false);
+            var thumbnailItems = await _store.GetAllThumbnails().ConfigureAwait(false);
 
-            var thumbnailPathDict = thumbnailItems.ToDictionary(item => item.Path);
-            var indexPathDict = indexItems.ToDictionary(item => item.Path);
+            _galleryContentPathDict = galleryContentItems.ToDictionary(item => item.Path);
+            _indexPathDict = indexItems.ToDictionary(item => item.Path);
+            _thumbnailPathDict = thumbnailItems.ToDictionary(item => item.Path);
+        }
 
-            var thumbnailDeltaPaths = thumbnailPathDict.Keys.Except(indexPathDict.Keys);
-            var indexDeltaPaths = indexPathDict.Keys.Except(thumbnailPathDict.Keys).ToList();
+        public void MakeThumbnailAndIndexConsistent()
+        {
+            var thumbnailDeltaPaths = _thumbnailPathDict.Keys.Except(_indexPathDict.Keys);
+            var indexDeltaPaths = _indexPathDict.Keys.Except(_thumbnailPathDict.Keys).ToList();
 
             thumbnailDeltaPaths
-                .Select(path => thumbnailPathDict[path])
+                .Select(path => _thumbnailPathDict[path])
                 .ToList()
                 .ForEach(async item => await _store.RemoveThumbnail(item));
             indexDeltaPaths
-                .Select(path => indexPathDict[path])
+                .Select(path => _indexPathDict[path])
                 .ToList()
                 .ForEach(async item => await _store.RemoveIndex(item));
         }
 
-        public async Task<(IEnumerable<IMediaItem>, IEnumerable<IMediaItem>, IEnumerable<IMediaItem>)>
+        public (IEnumerable<IMediaItem>, IEnumerable<IMediaItem>, IEnumerable<IMediaItem>)
             GetAddedRemovedRemaining()
         {
-            var galleryContentItems = await _store.GetAllItems().ConfigureAwait(false);
-            var indexItems = await _store.GetIndexItems().ConfigureAwait(false);
+            var addedPaths = _galleryContentPathDict.Keys.Except(_indexPathDict.Keys).ToList();
+            var removedPaths = _indexPathDict.Keys.Except(_galleryContentPathDict.Keys);
+            var remainingPaths = _galleryContentPathDict.Keys.Except(addedPaths);
 
-            var galleryContentPathDict = galleryContentItems.ToDictionary(item => item.Path);
-            var indexPathDict = indexItems.ToDictionary(item => item.Path);
-
-            var addedPaths = galleryContentPathDict.Keys.Except(indexPathDict.Keys).ToList();
-            var removedPaths = indexPathDict.Keys.Except(galleryContentPathDict.Keys);
-            var remainingPaths = galleryContentPathDict.Keys.Except(addedPaths);
-
-            var added = addedPaths.Select(path => galleryContentPathDict[path]);
-            var removed = removedPaths.Select(path => indexPathDict[path]);
-            var remaining = remainingPaths.Select(path => galleryContentPathDict[path]);
+            var added = addedPaths.Select(path => _galleryContentPathDict[path]);
+            var removed = removedPaths.Select(path => _indexPathDict[path]);
+            var remaining = remainingPaths.Select(path => _galleryContentPathDict[path]);
 
             return (added, removed, remaining);
         }
 
+        private IEnumerable<IMediaItem> GetUpdated(IEnumerable<IMediaItem> remaining)
+        {
+            return remaining.Where(item =>
+            {
+                var indexItem = _indexPathDict[item.Path];
+                return !Equals(item, indexItem);
+            });
+        }
+
         public async Task Build()
         {
-            //make thumbnails and index consistent
+            await LoadItemSources();
 
-            //check for added/removed
+            MakeThumbnailAndIndexConsistent();
+            
+            var (added, removed, remaining) = GetAddedRemovedRemaining();
 
-            //check for updated
+            var updated = GetUpdated(remaining);
 
-            //remove removed and updated
-
-            //add added and updated
+            foreach (var item in removed)
+            {
+                await _store.RemoveIndex(item);
+                await _store.RemoveThumbnail(item);
+            }
+            foreach (var item in updated)
+            {
+                await _store.UpdateThumbnail(item);
+                await _store.UpdateIndex(item);
+            }
+            foreach (var item in added)
+            {
+                await _store.UpdateThumbnail(item);
+                await _store.UpdateIndex(item);
+            }
         }
     }
 }
