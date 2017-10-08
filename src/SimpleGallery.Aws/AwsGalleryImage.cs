@@ -4,16 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
 using SimpleGallery.Core;
+using SimpleGallery.Core.Media;
 
 namespace SimpleGallery.Aws
 {
-    public sealed class AwsGalleryImage : GalleryImage
+    public sealed class AwsGalleryImage : GalleryImage, IAwsMediaItem
     {
         public bool Equals(AwsGalleryImage other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return string.Equals(_hash, other._hash) && string.Equals(Path, other.Path);
+            return string.Equals(Hash, other.Hash) && string.Equals(Path, other.Path);
         }
 
         public override bool Equals(object obj)
@@ -27,11 +28,11 @@ namespace SimpleGallery.Aws
         {
             unchecked
             {
-                return ((_hash != null ? _hash.GetHashCode() : 0) * 397) ^ (Path != null ? Path.GetHashCode() : 0);
+                return ((Hash != null ? Hash.GetHashCode() : 0) * 397) ^ (Path != null ? Path.GetHashCode() : 0);
             }
         }
 
-        private readonly string _hash;
+        public string Hash { get; }
         private readonly AwsMediaStore _store;
         private readonly S3Object _underlying;
 
@@ -40,7 +41,7 @@ namespace SimpleGallery.Aws
             _underlying = underlying;
             _store = store;
             Path = underlying.Key;
-            _hash = underlying.ETag;
+            Hash = underlying.ETag;
         }
 
         public override string Name => Path.Split('/').Last();

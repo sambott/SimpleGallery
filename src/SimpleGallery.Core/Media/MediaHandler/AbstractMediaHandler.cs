@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace SimpleGallery.Core
+namespace SimpleGallery.Core.Media.MediaHandler
 {
     public abstract class AbstractMediaHandler : IMediaHandler
     {

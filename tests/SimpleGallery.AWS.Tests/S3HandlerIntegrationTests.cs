@@ -5,11 +5,10 @@ using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Amazon;
 using Amazon.S3;
-using SimpleGallery.Aws;
 using SimpleGallery.Core.Tests;
 using Xunit;
 
-namespace SimpleGallery.AWS.Tests
+namespace SimpleGallery.Aws.Tests
 {
     public class S3HandlerIntegrationTests
     {

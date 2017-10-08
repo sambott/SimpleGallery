@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace SimpleGallery.Core
+namespace SimpleGallery.Core.Media.MediaHandler
 {
     public interface IMediaHandler : IComparable<IMediaHandler>
     {

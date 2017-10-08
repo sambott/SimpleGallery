@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Moq;
+using SimpleGallery.Core.Media;
+using SimpleGallery.Core.Media.MediaHandler;
 using SixLabors.ImageSharp;
 using Xunit;
 

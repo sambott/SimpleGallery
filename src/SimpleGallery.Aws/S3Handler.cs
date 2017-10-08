@@ -28,13 +28,13 @@ namespace SimpleGallery.Aws
         {
             return Observable.Create<S3Object>(async (obs, token) =>
             {
+                ListObjectsV2Response response;
                 var request = new ListObjectsV2Request
                 {
                     BucketName = _bucketName,
                     Prefix = path,
                     MaxKeys = 150
                 };
-                ListObjectsV2Response response;
                 do
                 {
                     if (token.IsCancellationRequested) break;
@@ -42,6 +42,7 @@ namespace SimpleGallery.Aws
                     response.S3Objects.ForEach(obs.OnNext);
                     request.ContinuationToken = response.NextContinuationToken;
                 } while (response.IsTruncated);
+                obs.OnCompleted();
             });
         }
     }

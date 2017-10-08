@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Model;
 using SimpleGallery.Core;
+using SimpleGallery.Core.Media;
 
 namespace SimpleGallery.Aws
 {
@@ -14,9 +15,9 @@ namespace SimpleGallery.Aws
     {
         private readonly IS3Handler _itemSource;
         private readonly IS3Handler _thumbnailSource;
-        private readonly IDynamoDBHandler _indexSource;
+        private readonly IDynamoDbHandler _indexSource;
 
-        public AwsMediaStore(IS3Handler itemSource, IS3Handler thumbnailSource, IDynamoDBHandler indexSource)
+        public AwsMediaStore(IS3Handler itemSource, IS3Handler thumbnailSource, IDynamoDbHandler indexSource)
         {
             _itemSource = itemSource;
             _thumbnailSource = thumbnailSource;

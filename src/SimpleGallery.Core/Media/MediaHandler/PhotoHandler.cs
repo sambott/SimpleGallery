@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 
-namespace SimpleGallery.Core
+namespace SimpleGallery.Core.Media.MediaHandler
 {
     public sealed class PhotoHandler : AbstractMediaHandler
     {
