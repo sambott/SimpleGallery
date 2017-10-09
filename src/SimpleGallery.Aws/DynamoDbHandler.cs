@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -53,15 +54,16 @@ namespace SimpleGallery.Aws
             await _dynamoClient.DeleteItemAsync(_tableName, item);
         }
 
-        private Dictionary<string, AttributeValue> ToDynamoKey(IAwsMediaItem item)
+        private Dictionary<string, AttributeValue> ToDynamoKey(BaseAwsGalleryImage item)
         {
             return new Dictionary<string, AttributeValue> {
                 { "Path", new AttributeValue { S = item.Path } },
             };
         }
         
-        private Dictionary<string, AttributeValue> ToDynamoItem(IAwsMediaItem item)
+        private Dictionary<string, AttributeValue> ToDynamoItem(BaseAwsGalleryImage item)
         {
+            // TODO consider a serialisable attribute or interface
             var dynamoItem = ToDynamoKey(item);
             dynamoItem.Add("Hash", new AttributeValue { S = item.Hash });
             dynamoItem.Add("Name", new AttributeValue { S = item.Name });
@@ -72,8 +74,16 @@ namespace SimpleGallery.Aws
             return dynamoItem;
         }
 
-        private IAwsMediaItem FromDynamoItem(Dictionary<string, AttributeValue> dynamoItem)
+        private BaseAwsGalleryImage FromDynamoItem(Dictionary<string, AttributeValue> dynamoItem)
         {
+            return new IndexedGalleryImage(
+                name: dynamoItem["Name"].S,
+                path: dynamoItem["Path"].S,
+                mediaUrl: dynamoItem["MediaUrl"].S,
+                thumbnailUrl: dynamoItem["ThubnailUrl"].S,
+                isAblum: dynamoItem["IsAlbum"].BOOL,
+                children: dynamoItem["Children"].SS
+                );
         }
     }
 }

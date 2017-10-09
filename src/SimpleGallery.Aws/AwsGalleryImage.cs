@@ -8,31 +8,8 @@ using SimpleGallery.Core.Media;
 
 namespace SimpleGallery.Aws
 {
-    public sealed class AwsGalleryImage : GalleryImage, IAwsMediaItem
+    public sealed class AwsGalleryImage : BaseAwsGalleryImage
     {
-        public bool Equals(AwsGalleryImage other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return string.Equals(Hash, other.Hash) && string.Equals(Path, other.Path);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is AwsGalleryImage && Equals((AwsGalleryImage) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((Hash != null ? Hash.GetHashCode() : 0) * 397) ^ (Path != null ? Path.GetHashCode() : 0);
-            }
-        }
-
-        public string Hash { get; }
         private readonly AwsMediaStore _store;
         private readonly S3Object _underlying;
 
@@ -46,8 +23,10 @@ namespace SimpleGallery.Aws
 
         public override string Name => Path.Split('/').Last();
         public override string Path { get; }
+        public override string Hash { get; }
         public override string MediaUrl { get; }
         public override string ThumbnailUrl { get; }
+
 
         public override Task<Stream> GetMedia()
         {
@@ -58,7 +37,5 @@ namespace SimpleGallery.Aws
         {
             throw new NotImplementedException();
         }
-        
-        
     }
 }
