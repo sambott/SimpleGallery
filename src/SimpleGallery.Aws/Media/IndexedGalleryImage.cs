@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace SimpleGallery.Aws
+namespace SimpleGallery.Aws.Media
 {
     public class IndexedGalleryImage : BaseAwsGalleryImage
     {

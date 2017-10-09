@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using SimpleGallery.Core.Media;
 
-namespace SimpleGallery.Aws
+namespace SimpleGallery.Aws.Media
 {
     public class AwsGalleryAlbum : BaseAwsGalleryAlbum
     {
@@ -12,7 +11,7 @@ namespace SimpleGallery.Aws
         public override string Path { get; }
         public override string MediaUrl { get; }
         public override string ThumbnailUrl { get; }
-        public override IEnumerable<IMediaItem> Children { get; }
+        public override ISet<string> ChildPaths { get; }
         public override Task<Stream> GetMedia()
         {
             throw new System.NotImplementedException();

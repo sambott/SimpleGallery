@@ -6,6 +6,7 @@ using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Model;
+using SimpleGallery.Aws.Media;
 using SimpleGallery.Core;
 using SimpleGallery.Core.Media;
 

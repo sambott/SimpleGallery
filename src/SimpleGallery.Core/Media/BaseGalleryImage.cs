@@ -17,16 +17,6 @@ namespace SimpleGallery.Core.Media
         public abstract Task<Stream> GetThumbnail();
 
         public bool IsAlbum => false;
-        public IEnumerable<IMediaItem> Children => Enumerable.Empty<IMediaItem>();
-
-        public IEnumerator<IMediaItem> GetEnumerator()
-        {
-            return Children.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        public ISet<string> ChildPaths => new HashSet<string>();
     }
 }

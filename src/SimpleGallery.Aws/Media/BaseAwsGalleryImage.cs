@@ -1,9 +1,9 @@
 ﻿using System;
 using SimpleGallery.Core.Media;
 
-namespace SimpleGallery.Aws
+namespace SimpleGallery.Aws.Media
 {
-    public abstract class BaseAwsGalleryImage : BaseGalleryImage, IEquatable<BaseAwsGalleryImage>
+    public abstract class BaseAwsGalleryImage : BaseGalleryImage, IAwsMediaItem, IEquatable<BaseAwsGalleryImage>
     {
         public abstract string Hash { get; }
 

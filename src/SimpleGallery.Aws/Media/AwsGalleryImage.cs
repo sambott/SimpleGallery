@@ -3,10 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
-using SimpleGallery.Core;
-using SimpleGallery.Core.Media;
 
-namespace SimpleGallery.Aws
+namespace SimpleGallery.Aws.Media
 {
     public sealed class AwsGalleryImage : BaseAwsGalleryImage
     {

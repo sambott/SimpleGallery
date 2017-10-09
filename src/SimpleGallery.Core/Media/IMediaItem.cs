@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 
 namespace SimpleGallery.Core.Media
 {
-    public interface IMediaItem : IEnumerable<IMediaItem>
+    public interface IMediaItem
     {
         string Name { get; }
         string Path { get; }
         string MediaUrl { get; }
         string ThumbnailUrl { get; }
         bool IsAlbum { get; }
-        IEnumerable<IMediaItem> Children { get; }
+        ISet<string> ChildPaths { get; }
 
         Task<Stream> GetMedia();
         Task<Stream> GetThumbnail();

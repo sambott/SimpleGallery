@@ -8,6 +8,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.S3.Model;
+using SimpleGallery.Aws.Media;
 
 namespace SimpleGallery.Aws
 {
@@ -67,23 +68,35 @@ namespace SimpleGallery.Aws
             var dynamoItem = ToDynamoKey(item);
             dynamoItem.Add("Hash", new AttributeValue { S = item.Hash });
             dynamoItem.Add("Name", new AttributeValue { S = item.Name });
-            dynamoItem.Add("Children", new AttributeValue { SS = item.Children.Select(i => i.Path).ToList() });
+            dynamoItem.Add("ChildPaths", new AttributeValue { SS = item.ChildPaths.ToList() });
             dynamoItem.Add("MediaUrl", new AttributeValue { S = item.MediaUrl });
             dynamoItem.Add("ThubnailUrl", new AttributeValue { S = item.ThumbnailUrl });
             dynamoItem.Add("IsAlbum", new AttributeValue { BOOL = item.IsAlbum });
             return dynamoItem;
         }
 
-        private BaseAwsGalleryImage FromDynamoItem(Dictionary<string, AttributeValue> dynamoItem)
+        private IAwsMediaItem FromDynamoItem(Dictionary<string, AttributeValue> dynamoItem)
         {
-            return new IndexedGalleryImage(
-                name: dynamoItem["Name"].S,
-                path: dynamoItem["Path"].S,
-                mediaUrl: dynamoItem["MediaUrl"].S,
-                thumbnailUrl: dynamoItem["ThubnailUrl"].S,
-                isAblum: dynamoItem["IsAlbum"].BOOL,
-                children: dynamoItem["Children"].SS
+            if (dynamoItem["IsAlbum"].BOOL)
+            {
+                return new IndexedGalleryAlbum(
+                    name: dynamoItem["Name"].S,
+                    path: dynamoItem["Path"].S,
+                    mediaUrl: dynamoItem["MediaUrl"].S,
+                    thumbnailUrl: dynamoItem["ThubnailUrl"].S,
+                    childPaths: new HashSet<string>(dynamoItem["ChildPaths"].SS)
+                  );
+            }
+            else
+            {
+                return new IndexedGalleryImage(
+                    name: dynamoItem["Name"].S,
+                    path: dynamoItem["Path"].S,
+                    mediaUrl: dynamoItem["MediaUrl"].S,
+                    thumbnailUrl: dynamoItem["ThubnailUrl"].S,
+                    hash: dynamoItem["Hash"].S
                 );
+            }
         }
     }
 }

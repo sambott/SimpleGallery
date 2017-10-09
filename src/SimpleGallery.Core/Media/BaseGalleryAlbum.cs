@@ -11,16 +11,10 @@ namespace SimpleGallery.Core.Media
         public abstract string Path { get; }
         public abstract string MediaUrl { get; }
         public abstract string ThumbnailUrl { get; }
-        public abstract IEnumerable<IMediaItem> Children { get; }
+        public abstract ISet<string> ChildPaths { get; }
         
         public abstract Task<Stream> GetMedia();
         public abstract Task<Stream> GetThumbnail();
         public bool IsAlbum => true;
-
-        public IEnumerator<IMediaItem> GetEnumerator() => Children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
     }
 }
