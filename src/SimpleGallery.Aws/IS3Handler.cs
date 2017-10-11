@@ -7,7 +7,9 @@ namespace SimpleGallery.Aws
 {
     public interface IS3Handler
     {
-        Task ReadItem(string path, Stream output);
+        Task<Stream> ReadItem(string path);
+        Task WriteItem(string path, Stream content);
+        Task DeleteItem(string path);
         IObservable<S3Object> GetS3Objects(string path);
     }
 }

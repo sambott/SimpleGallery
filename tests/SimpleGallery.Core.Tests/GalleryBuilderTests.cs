@@ -36,7 +36,7 @@ namespace SimpleGallery.Core.Tests
             };
             var mockMediaStore = new Mock<IMediaStore>();
             mockMediaStore.Setup(ms => ms.GetAllThumbnails()).ReturnsAsync(thumbnailItems);
-            mockMediaStore.Setup(ms => ms.GetIndexItems()).ReturnsAsync(indexItems);
+            mockMediaStore.Setup(ms => ms.GetAllIndexItems()).ReturnsAsync(indexItems);
             mockMediaStore.Setup(ms => ms.GetAllItems()).ReturnsAsync(new List<IMediaItem>());
             
             var builder = new GalleryBuilder(mockMediaStore.Object);
@@ -78,7 +78,7 @@ namespace SimpleGallery.Core.Tests
             };
             var mockMediaStore = new Mock<IMediaStore>();
             mockMediaStore.Setup(ms => ms.GetAllItems()).ReturnsAsync(galleryContentItems);
-            mockMediaStore.Setup(ms => ms.GetIndexItems()).ReturnsAsync(indexItems);
+            mockMediaStore.Setup(ms => ms.GetAllIndexItems()).ReturnsAsync(indexItems);
             mockMediaStore.Setup(ms => ms.GetAllThumbnails()).ReturnsAsync(new List<IMediaItem>());
 
             var builder = new GalleryBuilder(mockMediaStore.Object);
@@ -105,5 +105,7 @@ namespace SimpleGallery.Core.Tests
             Assert.Equal(expectedRemoved, new HashSet<string>(removed.Select(i => i.Path)));
             Assert.Equal(expectedRemaining, new HashSet<string>(remaining.Select(i => i.Path)));
         }
+
+        //TODO test GetUpdated && Build()
     }
 }

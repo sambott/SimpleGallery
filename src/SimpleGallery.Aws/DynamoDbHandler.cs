@@ -9,6 +9,7 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.S3.Model;
 using SimpleGallery.Aws.Media;
+using SimpleGallery.Core.Media;
 
 namespace SimpleGallery.Aws
 {
@@ -23,9 +24,9 @@ namespace SimpleGallery.Aws
             _tableName = tableName;
         }
 
-        public IObservable<Dictionary<string, AttributeValue>> ScanItems()
+        public IObservable<IAwsMediaItem> ScanItems()
         {
-            return Observable.Create<Dictionary<string, AttributeValue>>(async (obs, token) =>
+            return Observable.Create<IAwsMediaItem>(async (obs, token) =>
             {
                 ScanResponse response;
                 var request = new ScanRequest
@@ -38,40 +39,45 @@ namespace SimpleGallery.Aws
                 {
                     if (token.IsCancellationRequested) break;
                     response = await _dynamoClient.ScanAsync(request);
-                    response.Items.ForEach(obs.OnNext);
+                    response.Items.ForEach(i => obs.OnNext(FromDynamoItem(i)));
                     request.ExclusiveStartKey = response.LastEvaluatedKey;
                 } while (response.LastEvaluatedKey != null && response.LastEvaluatedKey.Count != 0);
                 obs.OnCompleted();
             });
         }
 
-        public async Task WriteItem(Dictionary<string, AttributeValue> item)
+        public async Task WriteItem(IMediaItem item)
         {
-            await _dynamoClient.PutItemAsync(_tableName, item);
+            var dynamoItem = ToDynamoItem(item);
+            await _dynamoClient.PutItemAsync(_tableName, dynamoItem);
         }
 
-        public async Task DeleteItem(Dictionary<string, AttributeValue> item)
+        public async Task DeleteItem(IMediaItem item)
         {
-            await _dynamoClient.DeleteItemAsync(_tableName, item);
+            var dynamoKey = ToDynamoKey(item);
+            await _dynamoClient.DeleteItemAsync(_tableName, dynamoKey);
         }
 
-        private Dictionary<string, AttributeValue> ToDynamoKey(BaseAwsGalleryImage item)
+        private Dictionary<string, AttributeValue> ToDynamoKey(IMediaItem item)
         {
             return new Dictionary<string, AttributeValue> {
                 { "Path", new AttributeValue { S = item.Path } },
             };
         }
         
-        private Dictionary<string, AttributeValue> ToDynamoItem(BaseAwsGalleryImage item)
+        private Dictionary<string, AttributeValue> ToDynamoItem(IMediaItem item)
         {
             // TODO consider a serialisable attribute or interface
             var dynamoItem = ToDynamoKey(item);
-            dynamoItem.Add("Hash", new AttributeValue { S = item.Hash });
-            dynamoItem.Add("Name", new AttributeValue { S = item.Name });
-            dynamoItem.Add("ChildPaths", new AttributeValue { SS = item.ChildPaths.ToList() });
-            dynamoItem.Add("MediaUrl", new AttributeValue { S = item.MediaUrl });
-            dynamoItem.Add("ThubnailUrl", new AttributeValue { S = item.ThumbnailUrl });
-            dynamoItem.Add("IsAlbum", new AttributeValue { BOOL = item.IsAlbum });
+            dynamoItem.Add("Name", new AttributeValue {S = item.Name});
+            dynamoItem.Add("ChildPaths", new AttributeValue {SS = item.ChildPaths.ToList()});
+            dynamoItem.Add("MediaUrl", new AttributeValue {S = item.MediaUrl});
+            dynamoItem.Add("ThubnailUrl", new AttributeValue {S = item.ThumbnailUrl});
+            dynamoItem.Add("IsAlbum", new AttributeValue {BOOL = item.IsAlbum});
+            if (item is BaseAwsGalleryImage imageItem)
+            {
+                dynamoItem.Add("Hash", new AttributeValue {S = imageItem.Hash});
+            }
             return dynamoItem;
         }
 

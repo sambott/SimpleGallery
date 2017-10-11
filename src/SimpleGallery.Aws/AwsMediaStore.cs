@@ -9,17 +9,20 @@ using Amazon.S3.Model;
 using SimpleGallery.Aws.Media;
 using SimpleGallery.Core;
 using SimpleGallery.Core.Media;
+using SimpleGallery.Core.Media.MediaHandler;
 
 namespace SimpleGallery.Aws
 {
     public sealed class AwsMediaStore : IMediaStore
     {
+        private readonly IMediaHandler _mediaHandler;
         private readonly IS3Handler _itemSource;
         private readonly IS3Handler _thumbnailSource;
         private readonly IDynamoDbHandler _indexSource;
 
-        public AwsMediaStore(IS3Handler itemSource, IS3Handler thumbnailSource, IDynamoDbHandler indexSource)
+        public AwsMediaStore(IMediaHandler mediaHandler, IS3Handler itemSource, IS3Handler thumbnailSource, IDynamoDbHandler indexSource)
         {
+            _mediaHandler = mediaHandler;
             _itemSource = itemSource;
             _thumbnailSource = thumbnailSource;
             _indexSource = indexSource;
@@ -41,29 +44,38 @@ namespace SimpleGallery.Aws
             return images;
         }
 
-        public Task<IEnumerable<IMediaItem>> GetIndexItems()
+        public async Task<IEnumerable<IMediaItem>> GetAllIndexItems()
         {
-            throw new NotImplementedException();
+            var indexItems = await _indexSource.ScanItems().ToList().ToTask();
+            return indexItems;
         }
 
-        public Task UpdateThumbnail(IMediaItem item)
+        public async Task UpdateThumbnail(IMediaItem item)
         {
-            throw new NotImplementedException();
+            using (var thumbnailStream = new MemoryStream())
+            {
+                if (await _mediaHandler.CanHandle(item))
+                {
+                    await _mediaHandler.WriteThumbnail(item, thumbnailStream);
+                }
+                thumbnailStream.Seek(0, 0);
+                await _thumbnailSource.WriteItem(item.Path, thumbnailStream);
+            }
         }
 
-        public Task RemoveThumbnail(IMediaItem path)
+        public async Task RemoveThumbnail(IMediaItem item)
         {
-            throw new NotImplementedException();
+            await _thumbnailSource.DeleteItem(item.Path);
         }
 
-        public Task UpdateIndex(IMediaItem item)
+        public async Task UpdateIndex(IMediaItem item)
         {
-            throw new NotImplementedException();
+            await _indexSource.WriteItem(item);
         }
 
-        public Task RemoveIndex(IMediaItem item)
+        public async Task RemoveIndex(IMediaItem item)
         {
-            throw new NotImplementedException();
+            await _indexSource.DeleteItem(item);
         }
     }
 }

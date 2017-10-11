@@ -57,9 +57,9 @@ namespace SimpleGallery.Aws.Tests
         {
             using (var s3 = new AmazonS3Client(_region))
             {
-                var s3handler = new S3Handler(s3, _bucketName);
+                var s3Handler = new S3Handler(s3, _bucketName);
 
-                var objects = await s3handler.GetS3Objects().ToList().ToTask();
+                var objects = await s3Handler.GetS3Objects().ToList().ToTask();
 
                 Assert.Equal(_expectedKeys.ToHashSet(), objects.Select(o => o.Key).ToHashSet());
             }
@@ -71,9 +71,9 @@ namespace SimpleGallery.Aws.Tests
             var album = "2009-08-06 Will's Passing Out/";
             using (var s3 = new AmazonS3Client(_region))
             {
-                var s3handler = new S3Handler(s3, _bucketName);
+                var s3Handler = new S3Handler(s3, _bucketName);
 
-                var objects = await s3handler.GetS3Objects(album).ToList().ToTask();
+                var objects = await s3Handler.GetS3Objects(album).ToList().ToTask();
 
                 Assert.Equal(_expectedKeys.Where(s => s.StartsWith(album)).ToHashSet(),
                     objects.Select(o => o.Key).ToHashSet());
@@ -86,9 +86,10 @@ namespace SimpleGallery.Aws.Tests
             using (var s3 = new AmazonS3Client(_region))
             using (var dest = new MemoryStream())
             {
-                var s3handler = new S3Handler(s3, _bucketName);
+                var s3Handler = new S3Handler(s3, _bucketName);
 
-                await s3handler.ReadItem(_testImage, dest);
+                var output = await s3Handler.ReadItem(_testImage);
+                output.CopyTo(dest);
 
                 Assert.Equal(1108509, dest.Length);
             }

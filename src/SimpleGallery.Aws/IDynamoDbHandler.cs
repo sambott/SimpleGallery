@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2.Model;
+using SimpleGallery.Aws.Media;
+using SimpleGallery.Core.Media;
 
 namespace SimpleGallery.Aws
 {
     public interface IDynamoDbHandler
     {
-        IObservable<Dictionary<string, AttributeValue>> ScanItems();
+        IObservable<IAwsMediaItem> ScanItems();
 
-        Task WriteItem(Dictionary<string, AttributeValue> item);
+        Task WriteItem(IMediaItem item);
 
-        Task DeleteItem(Dictionary<string, AttributeValue> item);
+        Task DeleteItem(IMediaItem item);
     }
 }

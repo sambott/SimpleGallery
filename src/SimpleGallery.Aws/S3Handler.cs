@@ -18,10 +18,26 @@ namespace SimpleGallery.Aws
             _bucketName = bucketName;
         }
 
-        public async Task ReadItem(string path, Stream output)
+        public async Task<Stream> ReadItem(string path)
         {
             var response = await _client.GetObjectAsync(_bucketName, path);
-            response.ResponseStream.CopyTo(output);
+            return response.ResponseStream;
+        }
+
+        public async Task WriteItem(string path, Stream content)
+        {
+            var request = new PutObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = path,
+                InputStream = content,
+            };
+            await _client.PutObjectAsync(request);
+        }
+
+        public async Task DeleteItem(string path)
+        {
+            await _client.DeleteObjectAsync(_bucketName, path);
         }
 
         public IObservable<S3Object> GetS3Objects(string path = "")

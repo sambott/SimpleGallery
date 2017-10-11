@@ -20,7 +20,7 @@ namespace SimpleGallery.Core
         public async Task LoadItemSources()
         {
             var galleryContentItems = await _store.GetAllItems().ConfigureAwait(false);
-            var indexItems = await _store.GetIndexItems().ConfigureAwait(false);
+            var indexItems = await _store.GetAllIndexItems().ConfigureAwait(false);
             var thumbnailItems = await _store.GetAllThumbnails().ConfigureAwait(false);
 
             _galleryContentPathDict = galleryContentItems.ToDictionary(item => item.Path);
