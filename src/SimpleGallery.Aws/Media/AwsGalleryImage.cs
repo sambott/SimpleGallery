@@ -26,6 +26,7 @@ namespace SimpleGallery.Aws.Media
         public override string ThumbnailUrl { get; }
 
 
+        // TODO move this into the store
         public override Task<Stream> GetMedia()
         {
             throw new NotImplementedException();

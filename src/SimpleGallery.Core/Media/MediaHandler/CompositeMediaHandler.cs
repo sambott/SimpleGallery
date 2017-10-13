@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace SimpleGallery.Core.Media.MediaHandler
 {
-    public sealed class CompositeMediaHandler : AbstractMediaHandler
+    public sealed class CompositeMediaHandler : AbstractMediaHandler, IEnumerable<IMediaHandler>
     {
         private readonly SortedSet<IMediaHandler> _components = new SortedSet<IMediaHandler>();
 
@@ -34,6 +35,16 @@ namespace SimpleGallery.Core.Media.MediaHandler
                 if (await handler.CanHandle(item)) return handler;
             }
             return null;
+        }
+
+        public IEnumerator<IMediaHandler> GetEnumerator()
+        {
+            return _components.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

@@ -70,7 +70,10 @@ namespace SimpleGallery.Aws
             // TODO consider a serialisable attribute or interface
             var dynamoItem = ToDynamoKey(item);
             dynamoItem.Add("Name", new AttributeValue {S = item.Name});
-            dynamoItem.Add("ChildPaths", new AttributeValue {SS = item.ChildPaths.ToList()});
+            if (item.ChildPaths.Count > 0)
+            {
+                dynamoItem.Add("ChildPaths", new AttributeValue {SS = item.ChildPaths.ToList()});
+            }
             dynamoItem.Add("MediaUrl", new AttributeValue {S = item.MediaUrl});
             dynamoItem.Add("ThubnailUrl", new AttributeValue {S = item.ThumbnailUrl});
             dynamoItem.Add("IsAlbum", new AttributeValue {BOOL = item.IsAlbum});

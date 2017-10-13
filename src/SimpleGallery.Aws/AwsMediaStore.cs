@@ -57,9 +57,10 @@ namespace SimpleGallery.Aws
                 if (await _mediaHandler.CanHandle(item))
                 {
                     await _mediaHandler.WriteThumbnail(item, thumbnailStream);
+                    thumbnailStream.Seek(0, 0);
+                    await _thumbnailSource.WriteItem(item.Path, thumbnailStream);
                 }
-                thumbnailStream.Seek(0, 0);
-                await _thumbnailSource.WriteItem(item.Path, thumbnailStream);
+                //TODO or what?
             }
         }
 

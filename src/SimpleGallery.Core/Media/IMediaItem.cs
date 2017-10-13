@@ -15,5 +15,6 @@ namespace SimpleGallery.Core.Media
 
         Task<Stream> GetMedia();
         Task<Stream> GetThumbnail();
+        
     }
 }
