@@ -14,7 +14,7 @@ namespace SimpleGallery.Core.Tests
         [Fact]
         public async Task CanOpenJpg()
         {
-            var mockMediaItem = new Mock<IMediaItem>();
+            var mockMediaItem = new Mock<IGalleryItem>();
             mockMediaItem.Setup(i => i.Path).Returns("any/old/path.JpG");
             
             var photoHandler = new PhotoHandler(new ImageSize(100, 100), 0);
@@ -25,7 +25,7 @@ namespace SimpleGallery.Core.Tests
         [Fact]
         public async Task CanOpenPng()
         {
-            var mockMediaItem = new Mock<IMediaItem>();
+            var mockMediaItem = new Mock<IGalleryItem>();
             mockMediaItem.Setup(i => i.Path).Returns("any/old/path.JpG");
             
             var photoHandler = new PhotoHandler(new ImageSize(100, 100), 0);
@@ -36,7 +36,7 @@ namespace SimpleGallery.Core.Tests
         [Fact]
         public async Task CanOpenBmp()
         {
-            var mockMediaItem = new Mock<IMediaItem>();
+            var mockMediaItem = new Mock<IGalleryItem>();
             mockMediaItem.Setup(i => i.Path).Returns("any/old/path.BMP");
             
             var photoHandler = new PhotoHandler(new ImageSize(100, 100), 0);
@@ -47,7 +47,7 @@ namespace SimpleGallery.Core.Tests
         [Fact]
         public async Task CanOpenGif()
         {
-            var mockMediaItem = new Mock<IMediaItem>();
+            var mockMediaItem = new Mock<IGalleryItem>();
             mockMediaItem.Setup(i => i.Path).Returns("any/old/path.GIf");
             
             var photoHandler = new PhotoHandler(new ImageSize(100, 100), 0);
@@ -58,7 +58,7 @@ namespace SimpleGallery.Core.Tests
         [Fact]
         public async Task CantOpenOther()
         {
-            var mockMediaItem = new Mock<IMediaItem>();
+            var mockMediaItem = new Mock<IGalleryItem>();
             mockMediaItem.Setup(i => i.Path).Returns("any/old/path.mp3");
             
             var photoHandler = new PhotoHandler(new ImageSize(100, 100), 0);
@@ -72,7 +72,7 @@ namespace SimpleGallery.Core.Tests
             using (var outStream = new MemoryStream())
             using (var imageStream = File.OpenRead("res/P8050597.JPG"))
             {
-                var mockMediaItem = new Mock<IMediaItem>();
+                var mockMediaItem = new Mock<IGalleryItem>();
                 mockMediaItem.Setup(item => item.GetMedia()).ReturnsAsync(imageStream);
                 
                 var photoHandler = new PhotoHandler(new ImageSize(100, 100), 0);

@@ -10,18 +10,17 @@ namespace SimpleGallery.Api.Controllers
     [Route("api/[controller]")]
     public class AdminController
     {
-        private readonly IMediaStore _store;
+        private readonly IGalleryBuilder _builder;
 
-        public AdminController(IMediaStore store)
+        public AdminController(IGalleryBuilder builder)
         {
-            _store = store;
+            _builder = builder;
         }
 
         [HttpGet]
         public async Task<IEnumerable<string>> Get()
         {
-            var builder = new GalleryBuilder(_store);
-            await builder.Build();
+            await _builder.Build();
             return new[] {"123"};
         }
     }

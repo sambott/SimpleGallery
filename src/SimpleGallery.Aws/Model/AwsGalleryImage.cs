@@ -6,22 +6,20 @@ namespace SimpleGallery.Aws.Model
 {
     public sealed class AwsGalleryImage : IAwsMediaItem
     {
-        private readonly AwsMediaStore _store;
-        private readonly S3Object _underlying;
+        private readonly IS3Handler _s3Handler;
 
-        public AwsGalleryImage(S3Object underlying, AwsMediaStore store)
+        public AwsGalleryImage(S3Object underlying, IS3Handler s3Handler)
         {
-            _underlying = underlying;
-            _store = store;
+            _s3Handler = s3Handler;
             Path = underlying.Key;
             Hash = underlying.ETag;
         }
 
-        public string Name => Path.Split('/').Last();
         public string Path { get; }
-        public string Url { get; }
         public string Hash { get; }
-        
+
+        public string Name => Path.Split('/').Last();
+        public string Url => _s3Handler.UrlForPath(Path);
         public bool IsAlbum => false;
         public ISet<string> ChildPaths { get; } = new HashSet<string>();
     }

@@ -6,8 +6,8 @@ using SimpleGallery.Core.Model;
 namespace SimpleGallery.Core
 {
     public interface IMediaStore<TMediaItem, TThumbItem, TIndexItem>
-        where TMediaItem : IMediaItem
-        where TThumbItem : IMediaItem
+        where TMediaItem : IGalleryItem
+        where TThumbItem : IGalleryItem
         where TIndexItem : IIndexItem<TMediaItem>
     {
         Task<IEnumerable<TMediaItem>> GetAllItems();
@@ -16,11 +16,13 @@ namespace SimpleGallery.Core
 
         Task<IEnumerable<TIndexItem>> GetAllIndexItems();
 
-        Task<TThumbItem> UpdateThumbnail(TMediaItem thumbnail, Stream content);
+        Task<Stream> ReadItem(string path);
+
+        Task UpdateThumbnail(TMediaItem thumbnail, Stream content);
 
         Task RemoveThumbnail(string path);
 
-        Task<TIndexItem> UpdateIndex(TMediaItem item, TThumbItem thumbnail);
+        Task UpdateIndex(TMediaItem item);
 
         Task RemoveIndex(string path);
     }

@@ -25,7 +25,7 @@ namespace SimpleGallery.Core.Model.MediaHandler
             Priority = priority;
         }
 
-        public Task<bool> CanHandle(IMediaItem item)
+        public Task<bool> CanHandle(IGalleryItem item)
         {
             var extensionPosition = item.Path.LastIndexOf('.');
             var extension = item.Path.Substring(extensionPosition + 1);
@@ -34,7 +34,7 @@ namespace SimpleGallery.Core.Model.MediaHandler
             );
         }
 
-        public Task<Stream> GenerateThumbnail(IMediaItem item, Stream input)
+        public Task<Stream> GenerateThumbnail(IGalleryItem item, Stream input)
         {
             var output = new MemoryStream();
             using (var image = Image.Load(input, out var format))

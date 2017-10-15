@@ -31,7 +31,7 @@ namespace SimpleGallery.Aws
         public async Task<IEnumerable<IAwsMediaItem>> GetAllItems()
         {
             var images = await _itemSource.GetS3Objects("")
-                .Select(obj => new AwsGalleryImage(obj, this))
+                .Select(obj => new AwsGalleryImage(obj, _itemSource))
                 .ToList().ToTask();
             return images;
         }
@@ -39,7 +39,7 @@ namespace SimpleGallery.Aws
         public async Task<IEnumerable<IAwsMediaItem>> GetAllThumbnails()
         {
             var images = await _thumbnailSource.GetS3Objects("")
-                .Select(obj => new AwsGalleryImage(obj, this))
+                .Select(obj => new AwsGalleryImage(obj, _thumbnailSource))
                 .ToList().ToTask();
             return images;
         }
@@ -50,13 +50,14 @@ namespace SimpleGallery.Aws
             return indexItems;
         }
 
-        public async Task<IAwsMediaItem> UpdateThumbnail(IAwsMediaItem thumbnail, Stream content)
+        public async Task<Stream> ReadItem(string path)
+        {
+            return await _itemSource.ReadItem(path);
+        }
+
+        public async Task UpdateThumbnail(IAwsMediaItem thumbnail, Stream content)
         {
             await _thumbnailSource.WriteItem(thumbnail.Path, content);
-            var objectsAtPath = await _thumbnailSource.GetS3Objects(thumbnail.Path)
-                .Select(obj => new AwsGalleryImage(obj, this))
-                .ToList().ToTask();
-            return objectsAtPath.Single();
         }
 
         public async Task RemoveThumbnail(string itemPath)
@@ -64,11 +65,10 @@ namespace SimpleGallery.Aws
             await _thumbnailSource.DeleteItem(itemPath);
         }
 
-        public async Task<IAwsIndexItem<IAwsMediaItem>> UpdateIndex(IAwsMediaItem item, IAwsMediaItem thumbnail)
+        public async Task UpdateIndex(IAwsMediaItem item)
         {
-            var indexItem = new IndexedAwsItem(item.Name, item.Path, item.Url, thumbnail.Url, item.ChildPaths, item.Hash, item.IsAlbum);
+            var indexItem = new IndexedAwsItem(item.Name, item.Path, item.ChildPaths, item.Hash, item.IsAlbum);
             await _indexSource.WriteItem(indexItem);
-            return indexItem;
         }
 
         public async Task RemoveIndex(string itemPath)

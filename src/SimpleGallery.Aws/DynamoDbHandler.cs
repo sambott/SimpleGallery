@@ -67,12 +67,12 @@ namespace SimpleGallery.Aws
         
         private Dictionary<string, AttributeValue> ToDynamoItem(IAwsIndexItem<IAwsMediaItem> item)
         {
-            // TODO consider a serialisable attribute or interface
             var dynamoItem = ToDynamoKey(item.Path);
             dynamoItem.Add("Name", new AttributeValue {S = item.Name});
-            dynamoItem.Add("ChildPaths", new AttributeValue {SS = item.ChildPaths.ToList()});
-            dynamoItem.Add("Url", new AttributeValue {S = item.Url});
-            dynamoItem.Add("ThubnailUrl", new AttributeValue {S = item.ThumbnailUrl});
+            if (item.ChildPaths.Count > 0)
+            {
+                dynamoItem.Add("ChildPaths", new AttributeValue {SS = item.ChildPaths.ToList()});
+            }
             dynamoItem.Add("IsAlbum", new AttributeValue {BOOL = item.IsAlbum});
             dynamoItem.Add("Hash", new AttributeValue {S = item.Hash});
             return dynamoItem;
@@ -80,14 +80,13 @@ namespace SimpleGallery.Aws
 
         private IAwsIndexItem<IAwsMediaItem> FromDynamoItem(Dictionary<string, AttributeValue> dynamoItem)
         {
+            var isAlbum = dynamoItem["IsAlbum"].BOOL;
             return new IndexedAwsItem(
                 path: dynamoItem["Path"].S,
                 name: dynamoItem["Name"].S,
-                url: dynamoItem["Url"].S,
-                thumbnailUrl: dynamoItem["ThubnailUrl"].S,
-                childPaths: new HashSet<string>(dynamoItem["ChildPaths"].SS),
+                childPaths: new HashSet<string>(isAlbum ? dynamoItem["ChildPaths"].SS : new List<string>()),
                 hash: dynamoItem["Hash"].S,
-                isAlbum: dynamoItem["IsAlbum"].BOOL
+                isAlbum: isAlbum
             );
         }
     }

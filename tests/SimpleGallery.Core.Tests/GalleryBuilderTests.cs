@@ -9,9 +9,9 @@ namespace SimpleGallery.Core.Tests
 {
     public class GalleryBuilderTests
     {
-        private IMediaItem GenerateMediaItem(string path)
+        private IGalleryItem GenerateMediaItem(string path)
         {
-            var item = new Mock<IMediaItem>();
+            var item = new Mock<IGalleryItem>();
             item.Setup(i => i.Path).Returns(path);
             item.Setup(i => i.Name).Returns(path.Split('/').Last());
             return item.Object;
@@ -20,14 +20,14 @@ namespace SimpleGallery.Core.Tests
         [Fact]
         public async Task BringsIndexAndThumbnailsInCheck()
         {
-            var thumbnailItems = new List<IMediaItem>
+            var thumbnailItems = new List<IGalleryItem>
             {
                 GenerateMediaItem("test/item1"),
                 GenerateMediaItem("test/item2"),
                 GenerateMediaItem("item4"),
                 GenerateMediaItem("item3")
             };
-            var indexItems = new List<IMediaItem>
+            var indexItems = new List<IGalleryItem>
             {
                 GenerateMediaItem("test/item1"),
                 GenerateMediaItem("test/item2"),
@@ -37,20 +37,20 @@ namespace SimpleGallery.Core.Tests
             var mockMediaStore = new Mock<IMediaStore>();
             mockMediaStore.Setup(ms => ms.GetAllThumbnails()).ReturnsAsync(thumbnailItems);
             mockMediaStore.Setup(ms => ms.GetAllIndexItems()).ReturnsAsync(indexItems);
-            mockMediaStore.Setup(ms => ms.GetAllItems()).ReturnsAsync(new List<IMediaItem>());
+            mockMediaStore.Setup(ms => ms.GetAllItems()).ReturnsAsync(new List<IGalleryItem>());
             
             var builder = new GalleryBuilder(mockMediaStore.Object);
             await builder.LoadItemSources();
 
             mockMediaStore.Setup(ms =>
                 ms.RemoveThumbnail(
-                    Match.Create<IMediaItem>(i => i.Path == "item4")
+                    Match.Create<IGalleryItem>(i => i.Path == "item4")
                 )
             ).Verifiable();
 
             mockMediaStore.Setup(ms =>
                 ms.RemoveIndex(
-                    Match.Create<IMediaItem>(i => i.Path == "test/item3")
+                    Match.Create<IGalleryItem>(i => i.Path == "test/item3")
                 )
             ).Verifiable();
 
@@ -62,14 +62,14 @@ namespace SimpleGallery.Core.Tests
         [Fact]
         public async Task FindsDelta()
         {
-            var galleryContentItems = new List<IMediaItem>
+            var galleryContentItems = new List<IGalleryItem>
             {
                 GenerateMediaItem("test/item1"),
                 GenerateMediaItem("test/item2"),
                 GenerateMediaItem("item4"),
                 GenerateMediaItem("item3")
             };
-            var indexItems = new List<IMediaItem>
+            var indexItems = new List<IGalleryItem>
             {
                 GenerateMediaItem("test/item1"),
                 GenerateMediaItem("test/item2"),
@@ -79,7 +79,7 @@ namespace SimpleGallery.Core.Tests
             var mockMediaStore = new Mock<IMediaStore>();
             mockMediaStore.Setup(ms => ms.GetAllItems()).ReturnsAsync(galleryContentItems);
             mockMediaStore.Setup(ms => ms.GetAllIndexItems()).ReturnsAsync(indexItems);
-            mockMediaStore.Setup(ms => ms.GetAllThumbnails()).ReturnsAsync(new List<IMediaItem>());
+            mockMediaStore.Setup(ms => ms.GetAllThumbnails()).ReturnsAsync(new List<IGalleryItem>());
 
             var builder = new GalleryBuilder(mockMediaStore.Object);
             await builder.LoadItemSources();

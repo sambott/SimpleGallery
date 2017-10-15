@@ -10,14 +10,15 @@ namespace SimpleGallery.Aws
     public sealed class S3Handler : IS3Handler
     {
         private readonly string _bucketName;
+        private readonly TimeSpan _linkTtl;
         private readonly string _baseUrl;
         private readonly IAmazonS3 _client;
 
-        public S3Handler(IAmazonS3 client, string bucketName, string baseUrl)
+        public S3Handler(IAmazonS3 client, string bucketName, TimeSpan linkTtl)
         {
             _client = client;
             _bucketName = bucketName;
-            _baseUrl = baseUrl;
+            _linkTtl = linkTtl;
         }
 
         public async Task<Stream> ReadItem(string path)
@@ -56,7 +57,7 @@ namespace SimpleGallery.Aws
                 do
                 {
                     if (token.IsCancellationRequested) break;
-                    response = await _client.ListObjectsV2Async(request);
+                    response = await _client.ListObjectsV2Async(request, token);
                     response.S3Objects.ForEach(obs.OnNext);
                     request.ContinuationToken = response.NextContinuationToken;
                 } while (response.IsTruncated);
@@ -66,7 +67,14 @@ namespace SimpleGallery.Aws
 
         public string UrlForPath(string path)
         {
-            return _baseUrl + path;
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = _bucketName,
+                Expires = DateTime.Now + _linkTtl,
+                Key = path,
+                Protocol = Protocol.HTTPS,    
+            };
+            return _client.GetPreSignedURL(request);
         }
     }
 }

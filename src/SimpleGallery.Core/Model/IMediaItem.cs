@@ -6,7 +6,6 @@ namespace SimpleGallery.Core.Model
     {
         string Name { get; }
         string Path { get; }
-        string Url { get; }
         bool IsAlbum { get; }
         ISet<string> ChildPaths { get; }
     }

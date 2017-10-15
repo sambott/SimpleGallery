@@ -1,9 +1,8 @@
 ﻿namespace SimpleGallery.Core.Model
 {
     public interface IIndexItem<in TMediaItem> : IMediaItem
-        where TMediaItem : IMediaItem
+        where TMediaItem : IGalleryItem
     {
-        string ThumbnailUrl { get; }
         bool RequiresUpdate<T>(TMediaItem item);
     }
 }

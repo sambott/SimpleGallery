@@ -9,9 +9,8 @@ using SimpleGallery.Core.Model.MediaHandler;
 
 namespace SimpleGallery.Core
 {
-    public sealed class GalleryBuilder<TMediaItem, TThumbItem, TIndexItem>
-        where TMediaItem : IMediaItem
-        where TThumbItem : IMediaItem
+    public sealed class GalleryBuilder<TMediaItem, TThumbItem, TIndexItem> : IGalleryBuilder where TMediaItem : IGalleryItem
+        where TThumbItem : IGalleryItem
         where TIndexItem : IIndexItem<TMediaItem>
     {
         private readonly IMediaStore<TMediaItem, TThumbItem, TIndexItem> _store;
@@ -117,20 +116,19 @@ namespace SimpleGallery.Core
 
         private async Task UpdateIndexAndThumbnail(TMediaItem item)
         {
-            TThumbItem thumbnail;
             if (!await _mediaHandler.CanHandle(item))
             {
                 throw new Exception("Should not get here");
             }
             
-            using (var thumbnailStream = new MemoryStream())
+            using (var itemStream = await _store.ReadItem(item.Path).ConfigureAwait(false))
+            using (var thumbnailStream = await _mediaHandler.GenerateThumbnail(item, itemStream).ConfigureAwait(false))
             {
-                    await _mediaHandler.GenerateThumbnail(item, thumbnailStream);
                     thumbnailStream.Seek(0, 0);
-            thumbnail = await _store.UpdateThumbnail(item, thumbnailStream).ConfigureAwait(false);
+                    await _store.UpdateThumbnail(item, thumbnailStream).ConfigureAwait(false);
             }
             
-            await _store.UpdateIndex(item, thumbnail).ConfigureAwait(false);
+            await _store.UpdateIndex(item).ConfigureAwait(false);
         }
 
         private async Task RemoveIndexAndThumbnail(TIndexItem item)

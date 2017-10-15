@@ -17,18 +17,18 @@ namespace SimpleGallery.Core.Model.MediaHandler
             return _components.Add(item);
         }
 
-        public async Task<bool> CanHandle(IMediaItem item)
+        public async Task<bool> CanHandle(IGalleryItem item)
         {
             return (await GetHandler(item)) != null;
         }
 
-        public async Task<Stream> GenerateThumbnail(IMediaItem item, Stream input)
+        public async Task<Stream> GenerateThumbnail(IGalleryItem item, Stream input)
         {
             var handler = await GetHandler(item);
             return await handler.GenerateThumbnail(item, input);
         }
 
-        private async Task<IMediaHandler> GetHandler(IMediaItem item)
+        private async Task<IMediaHandler> GetHandler(IGalleryItem item)
         {
             foreach (var handler in _components)
             {

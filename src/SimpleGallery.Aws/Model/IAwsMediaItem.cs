@@ -2,7 +2,7 @@
 
 namespace SimpleGallery.Aws.Model
 {
-    public interface IAwsMediaItem : IMediaItem
+    public interface IAwsMediaItem : IGalleryItem
     {
         string Hash { get; }
     }

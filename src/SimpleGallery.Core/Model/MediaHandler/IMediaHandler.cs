@@ -6,8 +6,8 @@ namespace SimpleGallery.Core.Model.MediaHandler
 {
     public interface IMediaHandler
     {
-        Task<bool> CanHandle(IMediaItem item);
-        Task<Stream> GenerateThumbnail(IMediaItem item, Stream input);
+        Task<bool> CanHandle(IGalleryItem item);
+        Task<Stream> GenerateThumbnail(IGalleryItem item, Stream input);
         int Priority { get; }
     }
 }
