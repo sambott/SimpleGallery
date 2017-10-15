@@ -1,23 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System.IO;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using SimpleGallery.Core.Media;
+using SimpleGallery.Core.Model;
 
 namespace SimpleGallery.Core
 {
-    public interface IMediaStore
+    public interface IMediaStore<TMediaItem, TThumbItem, TIndexItem>
+        where TMediaItem : IMediaItem
+        where TThumbItem : IMediaItem
+        where TIndexItem : IIndexItem<TMediaItem>
     {
-        Task<IEnumerable<IMediaItem>> GetAllItems();
+        Task<IEnumerable<TMediaItem>> GetAllItems();
 
-        Task<IEnumerable<IMediaItem>> GetAllThumbnails();
+        Task<IEnumerable<TThumbItem>> GetAllThumbnails();
 
-        Task<IEnumerable<IMediaItem>> GetAllIndexItems();
+        Task<IEnumerable<TIndexItem>> GetAllIndexItems();
 
-        Task UpdateThumbnail(IMediaItem item);
+        Task<TThumbItem> UpdateThumbnail(TMediaItem thumbnail, Stream content);
 
-        Task RemoveThumbnail(IMediaItem item);
+        Task RemoveThumbnail(string path);
 
-        Task UpdateIndex(IMediaItem item);
+        Task<TIndexItem> UpdateIndex(TMediaItem item, TThumbItem thumbnail);
 
-        Task RemoveIndex(IMediaItem item);
+        Task RemoveIndex(string path);
     }
 }

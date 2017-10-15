@@ -11,5 +11,6 @@ namespace SimpleGallery.Aws
         Task WriteItem(string path, Stream content);
         Task DeleteItem(string path);
         IObservable<S3Object> GetS3Objects(string path);
+        string UrlForPath(string path);
     }
 }

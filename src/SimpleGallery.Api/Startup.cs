@@ -7,8 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SimpleGallery.Aws;
 using SimpleGallery.Core;
-using SimpleGallery.Core.Media;
-using SimpleGallery.Core.Media.MediaHandler;
+using SimpleGallery.Core.Model;
+using SimpleGallery.Core.Model.MediaHandler;
 
 namespace SimpleGallery.Api
 {

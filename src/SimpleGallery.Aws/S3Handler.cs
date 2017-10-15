@@ -10,12 +10,14 @@ namespace SimpleGallery.Aws
     public sealed class S3Handler : IS3Handler
     {
         private readonly string _bucketName;
+        private readonly string _baseUrl;
         private readonly IAmazonS3 _client;
 
-        public S3Handler(IAmazonS3 client, string bucketName)
+        public S3Handler(IAmazonS3 client, string bucketName, string baseUrl)
         {
             _client = client;
             _bucketName = bucketName;
+            _baseUrl = baseUrl;
         }
 
         public async Task<Stream> ReadItem(string path)
@@ -60,6 +62,11 @@ namespace SimpleGallery.Aws
                 } while (response.IsTruncated);
                 obs.OnCompleted();
             });
+        }
+
+        public string UrlForPath(string path)
+        {
+            return _baseUrl + path;
         }
     }
 }

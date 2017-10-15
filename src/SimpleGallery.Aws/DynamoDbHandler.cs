@@ -8,8 +8,8 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.S3.Model;
-using SimpleGallery.Aws.Media;
-using SimpleGallery.Core.Media;
+using SimpleGallery.Aws.Model;
+using SimpleGallery.Core.Model;
 
 namespace SimpleGallery.Aws
 {
@@ -24,9 +24,9 @@ namespace SimpleGallery.Aws
             _tableName = tableName;
         }
 
-        public IObservable<IAwsMediaItem> ScanItems()
+        public IObservable<IAwsIndexItem<IAwsMediaItem>> ScanItems()
         {
-            return Observable.Create<IAwsMediaItem>(async (obs, token) =>
+            return Observable.Create<IAwsIndexItem<IAwsMediaItem>>(async (obs, token) =>
             {
                 ScanResponse response;
                 var request = new ScanRequest
@@ -46,66 +46,49 @@ namespace SimpleGallery.Aws
             });
         }
 
-        public async Task WriteItem(IMediaItem item)
+        public async Task WriteItem(IAwsIndexItem<IAwsMediaItem> item)
         {
             var dynamoItem = ToDynamoItem(item);
             await _dynamoClient.PutItemAsync(_tableName, dynamoItem);
         }
 
-        public async Task DeleteItem(IMediaItem item)
+        public async Task DeleteItem(string itemPath)
         {
-            var dynamoKey = ToDynamoKey(item);
+            var dynamoKey = ToDynamoKey(itemPath);
             await _dynamoClient.DeleteItemAsync(_tableName, dynamoKey);
         }
 
-        private Dictionary<string, AttributeValue> ToDynamoKey(IMediaItem item)
+        private Dictionary<string, AttributeValue> ToDynamoKey(string itemPath)
         {
             return new Dictionary<string, AttributeValue> {
-                { "Path", new AttributeValue { S = item.Path } },
+                { "Path", new AttributeValue { S = itemPath } },
             };
         }
         
-        private Dictionary<string, AttributeValue> ToDynamoItem(IMediaItem item)
+        private Dictionary<string, AttributeValue> ToDynamoItem(IAwsIndexItem<IAwsMediaItem> item)
         {
             // TODO consider a serialisable attribute or interface
-            var dynamoItem = ToDynamoKey(item);
+            var dynamoItem = ToDynamoKey(item.Path);
             dynamoItem.Add("Name", new AttributeValue {S = item.Name});
-            if (item.ChildPaths.Count > 0)
-            {
-                dynamoItem.Add("ChildPaths", new AttributeValue {SS = item.ChildPaths.ToList()});
-            }
-            dynamoItem.Add("MediaUrl", new AttributeValue {S = item.MediaUrl});
+            dynamoItem.Add("ChildPaths", new AttributeValue {SS = item.ChildPaths.ToList()});
+            dynamoItem.Add("Url", new AttributeValue {S = item.Url});
             dynamoItem.Add("ThubnailUrl", new AttributeValue {S = item.ThumbnailUrl});
             dynamoItem.Add("IsAlbum", new AttributeValue {BOOL = item.IsAlbum});
-            if (item is BaseAwsGalleryImage imageItem)
-            {
-                dynamoItem.Add("Hash", new AttributeValue {S = imageItem.Hash});
-            }
+            dynamoItem.Add("Hash", new AttributeValue {S = item.Hash});
             return dynamoItem;
         }
 
-        private IAwsMediaItem FromDynamoItem(Dictionary<string, AttributeValue> dynamoItem)
+        private IAwsIndexItem<IAwsMediaItem> FromDynamoItem(Dictionary<string, AttributeValue> dynamoItem)
         {
-            if (dynamoItem["IsAlbum"].BOOL)
-            {
-                return new IndexedGalleryAlbum(
-                    name: dynamoItem["Name"].S,
-                    path: dynamoItem["Path"].S,
-                    mediaUrl: dynamoItem["MediaUrl"].S,
-                    thumbnailUrl: dynamoItem["ThubnailUrl"].S,
-                    childPaths: new HashSet<string>(dynamoItem["ChildPaths"].SS)
-                  );
-            }
-            else
-            {
-                return new IndexedGalleryImage(
-                    name: dynamoItem["Name"].S,
-                    path: dynamoItem["Path"].S,
-                    mediaUrl: dynamoItem["MediaUrl"].S,
-                    thumbnailUrl: dynamoItem["ThubnailUrl"].S,
-                    hash: dynamoItem["Hash"].S
-                );
-            }
+            return new IndexedAwsItem(
+                path: dynamoItem["Path"].S,
+                name: dynamoItem["Name"].S,
+                url: dynamoItem["Url"].S,
+                thumbnailUrl: dynamoItem["ThubnailUrl"].S,
+                childPaths: new HashSet<string>(dynamoItem["ChildPaths"].SS),
+                hash: dynamoItem["Hash"].S,
+                isAlbum: dynamoItem["IsAlbum"].BOOL
+            );
         }
     }
 }

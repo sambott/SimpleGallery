@@ -1,49 +1,74 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using SimpleGallery.Core.Media;
+using SimpleGallery.Core.Model;
+using SimpleGallery.Core.Model.MediaHandler;
 
 namespace SimpleGallery.Core
 {
-    public sealed class GalleryBuilder
+    public sealed class GalleryBuilder<TMediaItem, TThumbItem, TIndexItem>
+        where TMediaItem : IMediaItem
+        where TThumbItem : IMediaItem
+        where TIndexItem : IIndexItem<TMediaItem>
     {
-        private readonly IMediaStore _store;
-        private Dictionary<string, IMediaItem> _indexPathDict;
-        private Dictionary<string, IMediaItem> _thumbnailPathDict;
-        private Dictionary<string, IMediaItem> _galleryContentPathDict;
+        private readonly IMediaStore<TMediaItem, TThumbItem, TIndexItem> _store;
+        private readonly IMediaHandler _mediaHandler;
+        private Dictionary<string, TIndexItem> _indexPathDict;
+        private Dictionary<string, TThumbItem> _thumbnailPathDict;
+        private Dictionary<string, TMediaItem> _galleryContentPathDict;
 
-        public GalleryBuilder(IMediaStore store)
+        public GalleryBuilder(IMediaStore<TMediaItem, TThumbItem, TIndexItem> store, IMediaHandler mediaHandler)
         {
             _store = store;
+            _mediaHandler = mediaHandler;
         }
 
         public async Task LoadItemSources()
         {
-            var galleryContentItems = await _store.GetAllItems().ConfigureAwait(false);
+            var allMediaItems = await _store.GetAllItems().ConfigureAwait(false);
             var indexItems = await _store.GetAllIndexItems().ConfigureAwait(false);
             var thumbnailItems = await _store.GetAllThumbnails().ConfigureAwait(false);
+
+            var galleryContentItems = await FilterByMediaHandler(allMediaItems).ConfigureAwait(false);
 
             _galleryContentPathDict = galleryContentItems.ToDictionary(item => item.Path);
             _indexPathDict = indexItems.ToDictionary(item => item.Path);
             _thumbnailPathDict = thumbnailItems.ToDictionary(item => item.Path);
         }
 
-        public void MakeThumbnailAndIndexConsistent()
+        private async Task<IEnumerable<TMediaItem>> FilterByMediaHandler(IEnumerable<TMediaItem> allMediaItems)
+        {
+            var results = new ConcurrentQueue<TMediaItem>();
+            var tasks = allMediaItems.Select(
+                async item =>
+                {
+                    if (await _mediaHandler.CanHandle(item))
+                        results.Enqueue(item);
+                });
+            await Task.WhenAll(tasks);
+            return results;
+        }
+
+        public async Task MakeThumbnailAndIndexConsistent()
         {
             var thumbnailDeltaPaths = _thumbnailPathDict.Keys.Except(_indexPathDict.Keys);
             var indexDeltaPaths = _indexPathDict.Keys.Except(_thumbnailPathDict.Keys).ToList();
 
-            thumbnailDeltaPaths
+            var thumbnailTasks = thumbnailDeltaPaths
                 .Select(path => _thumbnailPathDict[path])
                 .ToList()
-                .ForEach(async item => await _store.RemoveThumbnail(item));
-            indexDeltaPaths
+                .Select(item => _store.RemoveThumbnail(item.Path));
+            var indexTasks = indexDeltaPaths
                 .Select(path => _indexPathDict[path])
                 .ToList()
-                .ForEach(async item => await _store.RemoveIndex(item));
+                .Select(item => _store.RemoveIndex(item.Path));
+            await Task.WhenAll(thumbnailTasks.Concat(indexTasks)).ConfigureAwait(false);
         }
 
-        public (IEnumerable<IMediaItem>, IEnumerable<IMediaItem>, IEnumerable<IMediaItem>)
+        public (IEnumerable<TMediaItem>, IEnumerable<TIndexItem>, IEnumerable<TMediaItem>)
             GetAddedRemovedRemaining()
         {
             var addedPaths = _galleryContentPathDict.Keys.Except(_indexPathDict.Keys).ToList();
@@ -57,20 +82,20 @@ namespace SimpleGallery.Core
             return (added, removed, remaining);
         }
 
-        private IEnumerable<IMediaItem> GetUpdated(IEnumerable<IMediaItem> remaining)
+        private IEnumerable<TMediaItem> GetUpdated(IEnumerable<TMediaItem> remaining)
         {
             return remaining.Where(item =>
             {
                 var indexItem = _indexPathDict[item.Path];
-                return !Equals(item, indexItem);
+                return indexItem.RequiresUpdate<TMediaItem>(item);
             });
         }
 
         public async Task Build()
         {
-            await LoadItemSources();
+            await LoadItemSources().ConfigureAwait(false);
 
-            MakeThumbnailAndIndexConsistent();
+            await MakeThumbnailAndIndexConsistent();
             
             var (added, removed, remaining) = GetAddedRemovedRemaining();
 
@@ -78,19 +103,40 @@ namespace SimpleGallery.Core
 
             foreach (var item in removed)
             {
-                await _store.RemoveIndex(item);
-                await _store.RemoveThumbnail(item);
+                await RemoveIndexAndThumbnail(item).ConfigureAwait(false);
             }
             foreach (var item in updated)
             {
-                await _store.UpdateThumbnail(item);
-                await _store.UpdateIndex(item);
+                await UpdateIndexAndThumbnail(item).ConfigureAwait(false);
             }
             foreach (var item in added)
             {
-                await _store.UpdateThumbnail(item);
-                await _store.UpdateIndex(item);
+                await UpdateIndexAndThumbnail(item).ConfigureAwait(false);
             }
+        }
+
+        private async Task UpdateIndexAndThumbnail(TMediaItem item)
+        {
+            TThumbItem thumbnail;
+            if (!await _mediaHandler.CanHandle(item))
+            {
+                throw new Exception("Should not get here");
+            }
+            
+            using (var thumbnailStream = new MemoryStream())
+            {
+                    await _mediaHandler.GenerateThumbnail(item, thumbnailStream);
+                    thumbnailStream.Seek(0, 0);
+            thumbnail = await _store.UpdateThumbnail(item, thumbnailStream).ConfigureAwait(false);
+            }
+            
+            await _store.UpdateIndex(item, thumbnail).ConfigureAwait(false);
+        }
+
+        private async Task RemoveIndexAndThumbnail(TIndexItem item)
+        {
+            await _store.RemoveIndex(item.Path).ConfigureAwait(false);
+            await _store.RemoveThumbnail(item.Path).ConfigureAwait(false);
         }
     }
 }

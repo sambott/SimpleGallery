@@ -1,31 +1,31 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace SimpleGallery.Core.Media.MediaHandler
+namespace SimpleGallery.Core.Model.MediaHandler
 {
-    public sealed class CompositeMediaHandler : AbstractMediaHandler, IEnumerable<IMediaHandler>
+    public sealed class CompositeMediaHandler : IMediaHandler, IEnumerable<IMediaHandler>
     {
-        private readonly SortedSet<IMediaHandler> _components = new SortedSet<IMediaHandler>();
+        private static readonly IComparer<IMediaHandler> HandlerComparer = new MediaHandlerComparer();
+        private readonly SortedSet<IMediaHandler> _components = new SortedSet<IMediaHandler>(HandlerComparer);
 
-        public override int Priority => 0;
+        public int Priority => 0;
 
         public bool Add(IMediaHandler item)
         {
             return _components.Add(item);
         }
 
-        public override async Task<bool> CanHandle(IMediaItem item)
+        public async Task<bool> CanHandle(IMediaItem item)
         {
             return (await GetHandler(item)) != null;
         }
 
-        public override async Task WriteThumbnail(IMediaItem item, Stream output)
+        public async Task<Stream> GenerateThumbnail(IMediaItem item, Stream input)
         {
             var handler = await GetHandler(item);
-            await handler.WriteThumbnail(item, output);
+            return await handler.GenerateThumbnail(item, input);
         }
 
         private async Task<IMediaHandler> GetHandler(IMediaItem item)

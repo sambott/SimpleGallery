@@ -1,4 +1,4 @@
-﻿namespace SimpleGallery.Core.Media
+﻿namespace SimpleGallery.Core.Model
 {
     public struct ImageSize
     {

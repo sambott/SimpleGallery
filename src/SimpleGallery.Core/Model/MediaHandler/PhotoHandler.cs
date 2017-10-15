@@ -3,9 +3,9 @@ using System.IO;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 
-namespace SimpleGallery.Core.Media.MediaHandler
+namespace SimpleGallery.Core.Model.MediaHandler
 {
-    public sealed class PhotoHandler : AbstractMediaHandler
+    public sealed class PhotoHandler : IMediaHandler
     {
         private readonly HashSet<string> _supported = new HashSet<string>
         {
@@ -25,7 +25,7 @@ namespace SimpleGallery.Core.Media.MediaHandler
             Priority = priority;
         }
 
-        public override Task<bool> CanHandle(IMediaItem item)
+        public Task<bool> CanHandle(IMediaItem item)
         {
             var extensionPosition = item.Path.LastIndexOf('.');
             var extension = item.Path.Substring(extensionPosition + 1);
@@ -34,16 +34,19 @@ namespace SimpleGallery.Core.Media.MediaHandler
             );
         }
 
-        public override async Task WriteThumbnail(IMediaItem item, Stream output)
+        public Task<Stream> GenerateThumbnail(IMediaItem item, Stream input)
         {
-            using (var imageStream = await item.GetMedia())
-            using (var image = Image.Load(imageStream, out var format))
+            var output = new MemoryStream();
+            using (var image = Image.Load(input, out var format))
             {
                 image.Mutate(ctx => ctx.Resize(_thumbnailSize.Width, _thumbnailSize.Height));
                 image.Save(output, format);
             }
+            output.Seek(0, 0);
+            return Task.FromResult<Stream>(output);
+
         }
 
-        public override int Priority { get; }
+        public int Priority { get; }
     }
 }

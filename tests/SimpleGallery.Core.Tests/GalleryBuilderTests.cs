@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
-using SimpleGallery.Core.Media;
+using SimpleGallery.Core.Model;
 using Xunit;
 
 namespace SimpleGallery.Core.Tests

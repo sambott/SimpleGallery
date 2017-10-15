@@ -2,8 +2,8 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Moq;
-using SimpleGallery.Core.Media;
-using SimpleGallery.Core.Media.MediaHandler;
+using SimpleGallery.Core.Model;
+using SimpleGallery.Core.Model.MediaHandler;
 using SixLabors.ImageSharp;
 using Xunit;
 
@@ -77,7 +77,7 @@ namespace SimpleGallery.Core.Tests
                 
                 var photoHandler = new PhotoHandler(new ImageSize(100, 100), 0);
 
-                await photoHandler.WriteThumbnail(mockMediaItem.Object, outStream);
+                await photoHandler.GenerateThumbnail(mockMediaItem.Object, outStream);
 
                 outStream.Seek(0, 0);
                 var thumbnail = Image.Load(outStream);
