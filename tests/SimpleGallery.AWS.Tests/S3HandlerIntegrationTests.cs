@@ -96,5 +96,18 @@ namespace SimpleGallery.Aws.Tests
                 Assert.Equal(1108509, dest.Length);
             }
         }
+
+        [IntegrationFact]
+        public void SignsUrl()
+        {
+            using (var s3 = new AmazonS3Client(_region))
+            {
+                var s3Handler = new S3Handler(s3, BucketName, LinkTtl);
+
+                var url = s3Handler.UrlForPath(_testImage);
+                
+                Assert.StartsWith($"https://{BucketName}.s3-{_region.SystemName}.amazonaws.com/2009-08-06%20Will's%20Passing%20Out/P8050597.JPG?X-Amz", url);
+            }
+        }
     }
 }

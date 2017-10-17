@@ -11,7 +11,6 @@ namespace SimpleGallery.Aws
     {
         private readonly string _bucketName;
         private readonly TimeSpan _linkTtl;
-        private readonly string _baseUrl;
         private readonly IAmazonS3 _client;
 
         public S3Handler(IAmazonS3 client, string bucketName, TimeSpan linkTtl)
@@ -52,7 +51,7 @@ namespace SimpleGallery.Aws
                 {
                     BucketName = _bucketName,
                     Prefix = path,
-                    MaxKeys = 150
+                    MaxKeys = 100,
                 };
                 do
                 {

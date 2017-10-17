@@ -38,7 +38,7 @@ namespace SimpleGallery.Aws
                 do
                 {
                     if (token.IsCancellationRequested) break;
-                    response = await _dynamoClient.ScanAsync(request);
+                    response = await _dynamoClient.ScanAsync(request, token);
                     response.Items.ForEach(i => obs.OnNext(FromDynamoItem(i)));
                     request.ExclusiveStartKey = response.LastEvaluatedKey;
                 } while (response.LastEvaluatedKey != null && response.LastEvaluatedKey.Count != 0);
