@@ -69,21 +69,16 @@ namespace SimpleGallery.Core.Tests
         [Fact]
         public async Task CanCreateThumbnail()
         {
-            using (var outStream = new MemoryStream())
-            using (var imageStream = File.OpenRead("res/P8050597.JPG"))
+            var photoHandler = new PhotoHandler(new ImageSize(101, 102), 0);
+            var dummyImage = new Mock<IGalleryItem>().Object;
+            using (var imageStream =  File.OpenRead("res/P8050597.JPG"))
+            using (var outStream = await photoHandler.GenerateThumbnail(dummyImage, imageStream))
             {
-                var mockMediaItem = new Mock<IGalleryItem>();
-                mockMediaItem.Setup(item => item.GetMedia()).ReturnsAsync(imageStream);
-                
-                var photoHandler = new PhotoHandler(new ImageSize(100, 100), 0);
-
-                await photoHandler.GenerateThumbnail(mockMediaItem.Object, outStream);
-
                 outStream.Seek(0, 0);
                 var thumbnail = Image.Load(outStream);
 
-                Assert.Equal(100, thumbnail.Height);
-                Assert.Equal(100, thumbnail.Width);
+                Assert.Equal(101, thumbnail.Width);
+                Assert.Equal(102, thumbnail.Height);
             }
         }
     }

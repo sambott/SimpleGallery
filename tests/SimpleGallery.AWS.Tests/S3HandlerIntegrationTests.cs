@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -12,7 +13,8 @@ namespace SimpleGallery.Aws.Tests
 {
     public class S3HandlerIntegrationTests
     {
-        private const string _bucketName = "sam-testing-bucket";
+        private const string BucketName = "sam-testing-bucket";
+        private static readonly TimeSpan LinkTtl = TimeSpan.FromHours(1);
 
         private readonly string[] _expectedKeys =
         {
@@ -57,7 +59,7 @@ namespace SimpleGallery.Aws.Tests
         {
             using (var s3 = new AmazonS3Client(_region))
             {
-                var s3Handler = new S3Handler(s3, _bucketName);
+                var s3Handler = new S3Handler(s3, BucketName, LinkTtl);
 
                 var objects = await s3Handler.GetS3Objects().ToList().ToTask();
 
@@ -71,7 +73,7 @@ namespace SimpleGallery.Aws.Tests
             var album = "2009-08-06 Will's Passing Out/";
             using (var s3 = new AmazonS3Client(_region))
             {
-                var s3Handler = new S3Handler(s3, _bucketName);
+                var s3Handler = new S3Handler(s3, BucketName, LinkTtl);
 
                 var objects = await s3Handler.GetS3Objects(album).ToList().ToTask();
 
@@ -86,7 +88,7 @@ namespace SimpleGallery.Aws.Tests
             using (var s3 = new AmazonS3Client(_region))
             using (var dest = new MemoryStream())
             {
-                var s3Handler = new S3Handler(s3, _bucketName);
+                var s3Handler = new S3Handler(s3, BucketName, LinkTtl);
 
                 var output = await s3Handler.ReadItem(_testImage);
                 output.CopyTo(dest);
