@@ -86,7 +86,7 @@ namespace SimpleGallery.Core
             return remaining.Where(item =>
             {
                 var indexItem = _indexPathDict[item.Path];
-                return indexItem.RequiresUpdate<TMediaItem>(item);
+                return indexItem.RequiresUpdate(item);
             });
         }
 

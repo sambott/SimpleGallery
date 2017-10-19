@@ -22,5 +22,31 @@ namespace SimpleGallery.Aws.Model
         public string Url => _s3Handler.UrlForPath(Path);
         public bool IsAlbum => false;
         public ISet<string> ChildPaths { get; } = new HashSet<string>();
+        
+
+        private bool Equals(AwsGalleryImage other)
+        {
+            return  string.Equals(Hash, other.Hash) && string.Equals(Name, other.Name) && string.Equals(Path, other.Path) && IsAlbum == other.IsAlbum;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((AwsGalleryImage) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Path != null ? Path.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Hash != null ? Hash.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IsAlbum.GetHashCode();
+                return hashCode;
+            }
+        }
     }
 }

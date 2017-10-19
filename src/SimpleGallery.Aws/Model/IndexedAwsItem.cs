@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using SimpleGallery.Core.Model;
 
 namespace SimpleGallery.Aws.Model
@@ -22,7 +23,9 @@ namespace SimpleGallery.Aws.Model
         public ISet<string> ChildPaths { get; }
         public bool IsAlbum { get; }
 
-        public bool RequiresUpdate<T>(IAwsMediaItem item)
+        public bool RequiresUpdate(IAwsMediaItem item) => !UpToDateWith(item);
+        
+        private bool UpToDateWith(IAwsMediaItem item)
         {
             if (ReferenceEquals(null, item)) return false;
             return Equals((IMediaItem) item) && string.Equals(Hash, item.Hash);
