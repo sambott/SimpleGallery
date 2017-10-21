@@ -12,7 +12,7 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SimpleGallery.Aws\SimpleGallery.Aws.csproj"/>
-    <ProjectReference Include="..\SimpleGallery.Core\SimpleGallery.Core.csproj"/>
+    <ProjectReference Include="..\SimpleGallery.Aws\SimpleGallery.Aws.csproj" />
+    <ProjectReference Include="..\SimpleGallery.Core\SimpleGallery.Core.csproj" />
   </ItemGroup>
 </Project>
