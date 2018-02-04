@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Moq;
 using SimpleGallery.Core.Model;
-using SimpleGallery.Core.Model.MediaHandler;
+using SimpleGallery.Core.Model.MediaPreprocessor;
 using Xunit;
 
 namespace SimpleGallery.Core.Tests
@@ -13,13 +13,13 @@ namespace SimpleGallery.Core.Tests
         public async Task CompositeHandlerDoesntHandleIfItsComponentsCant()
         {
             var mItem = new Mock<IGalleryItem>();
-            var mHandler1 = new Mock<IMediaHandler>();
-            var mHandler2 = new Mock<IMediaHandler>();
+            var mHandler1 = new Mock<IMediaPreprocessor>();
+            var mHandler2 = new Mock<IMediaPreprocessor>();
             mHandler1.Setup(h => h.Priority).Returns(1);
             mHandler2.Setup(h => h.Priority).Returns(2);
             mHandler1.Setup(h => h.CanHandle(It.IsAny<IGalleryItem>())).ReturnsAsync(false);
             mHandler2.Setup(h => h.CanHandle(It.IsAny<IGalleryItem>())).ReturnsAsync(false);
-            var composite = new CompositeMediaHandler
+            var composite = new CompositeMediaPreprocessor
             {
                 mHandler1.Object,
                 mHandler2.Object,
@@ -32,13 +32,13 @@ namespace SimpleGallery.Core.Tests
         public async Task CompositeHandlerHandlesIfItsComponentsCan()
         {
             var mItem = new Mock<IGalleryItem>();
-            var mHandler1 = new Mock<IMediaHandler>();
-            var mHandler2 = new Mock<IMediaHandler>();
+            var mHandler1 = new Mock<IMediaPreprocessor>();
+            var mHandler2 = new Mock<IMediaPreprocessor>();
             mHandler1.Setup(h => h.Priority).Returns(1);
             mHandler2.Setup(h => h.Priority).Returns(2);
             mHandler1.Setup(h => h.CanHandle(It.IsAny<IGalleryItem>())).ReturnsAsync(false);
             mHandler2.Setup(h => h.CanHandle(It.IsAny<IGalleryItem>())).ReturnsAsync(true);
-            var composite = new CompositeMediaHandler
+            var composite = new CompositeMediaPreprocessor
             {
                 mHandler1.Object,
                 mHandler2.Object,
@@ -51,7 +51,7 @@ namespace SimpleGallery.Core.Tests
         public async Task CompositeHandlerDoesntHandleIfItsEmpty()
         {
             var mItem = new Mock<IGalleryItem>();
-            var composite = new CompositeMediaHandler();
+            var composite = new CompositeMediaPreprocessor();
             
             Assert.False(await composite.CanHandle(mItem.Object));
         }
@@ -60,13 +60,13 @@ namespace SimpleGallery.Core.Tests
         public async Task CompositeHandlerUsesComponentThatCan()
         {
             var mItem = new Mock<IGalleryItem>();
-            var mHandler1 = new Mock<IMediaHandler>();
-            var mHandler2 = new Mock<IMediaHandler>();
+            var mHandler1 = new Mock<IMediaPreprocessor>();
+            var mHandler2 = new Mock<IMediaPreprocessor>();
             mHandler1.Setup(h => h.Priority).Returns(1);
             mHandler2.Setup(h => h.Priority).Returns(2);
             mHandler1.Setup(h => h.CanHandle(It.IsAny<IGalleryItem>())).ReturnsAsync(false);
             mHandler2.Setup(h => h.CanHandle(It.IsAny<IGalleryItem>())).ReturnsAsync(true);
-            var composite = new CompositeMediaHandler
+            var composite = new CompositeMediaPreprocessor
             {
                 mHandler1.Object,
                 mHandler2.Object,
@@ -90,16 +90,16 @@ namespace SimpleGallery.Core.Tests
         public async Task CompositeHandlerUsesLowestPriorityComponentThatCan()
         {
             var mItem = new Mock<IGalleryItem>();
-            var mHandler1 = new Mock<IMediaHandler>();
-            var mHandler2 = new Mock<IMediaHandler>();
-            var mHandler3 = new Mock<IMediaHandler>();
+            var mHandler1 = new Mock<IMediaPreprocessor>();
+            var mHandler2 = new Mock<IMediaPreprocessor>();
+            var mHandler3 = new Mock<IMediaPreprocessor>();
             mHandler1.Setup(h => h.Priority).Returns(1);
             mHandler2.Setup(h => h.Priority).Returns(2);
             mHandler3.Setup(h => h.Priority).Returns(0);
             mHandler1.Setup(h => h.CanHandle(It.IsAny<IGalleryItem>())).ReturnsAsync(false);
             mHandler2.Setup(h => h.CanHandle(It.IsAny<IGalleryItem>())).ReturnsAsync(true);
             mHandler3.Setup(h => h.CanHandle(It.IsAny<IGalleryItem>())).ReturnsAsync(true);
-            var composite = new CompositeMediaHandler
+            var composite = new CompositeMediaPreprocessor
             {
                 mHandler1.Object,
                 mHandler2.Object,

@@ -6,6 +6,8 @@ using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Amazon;
 using Amazon.S3;
+using Microsoft.Extensions.Logging;
+using Moq;
 using SimpleGallery.Core.Tests;
 using Xunit;
 
@@ -59,7 +61,7 @@ namespace SimpleGallery.Aws.Tests
         {
             using (var s3 = new AmazonS3Client(_region))
             {
-                var s3Handler = new S3Handler(s3, BucketName, LinkTtl);
+                var s3Handler = new S3ItemStore(s3, BucketName, LinkTtl, Mock.Of<ILogger>());
 
                 var objects = await s3Handler.GetS3Objects().ToList().ToTask();
 
@@ -73,7 +75,7 @@ namespace SimpleGallery.Aws.Tests
             var album = "2009-08-06 Will's Passing Out/";
             using (var s3 = new AmazonS3Client(_region))
             {
-                var s3Handler = new S3Handler(s3, BucketName, LinkTtl);
+                var s3Handler = new S3ItemStore(s3, BucketName, LinkTtl, Mock.Of<ILogger>());
 
                 var objects = await s3Handler.GetS3Objects(album).ToList().ToTask();
 
@@ -88,7 +90,7 @@ namespace SimpleGallery.Aws.Tests
             using (var s3 = new AmazonS3Client(_region))
             using (var dest = new MemoryStream())
             {
-                var s3Handler = new S3Handler(s3, BucketName, LinkTtl);
+                var s3Handler = new S3ItemStore(s3, BucketName, LinkTtl, Mock.Of<ILogger>());
 
                 var output = await s3Handler.ReadItem(_testImage);
                 output.CopyTo(dest);
@@ -102,7 +104,7 @@ namespace SimpleGallery.Aws.Tests
         {
             using (var s3 = new AmazonS3Client(_region))
             {
-                var s3Handler = new S3Handler(s3, BucketName, LinkTtl);
+                var s3Handler = new S3ItemStore(s3, BucketName, LinkTtl, Mock.Of<ILogger>());
 
                 var url = s3Handler.UrlForPath(_testImage);
                 

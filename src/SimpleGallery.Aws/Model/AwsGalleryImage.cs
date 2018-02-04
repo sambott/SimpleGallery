@@ -6,11 +6,11 @@ namespace SimpleGallery.Aws.Model
 {
     public sealed class AwsGalleryImage : IAwsMediaItem
     {
-        private readonly IS3Handler _s3Handler;
+        private readonly IS3ItemStore _is3ItemStore;
 
-        public AwsGalleryImage(S3Object underlying, IS3Handler s3Handler)
+        public AwsGalleryImage(S3Object underlying, IS3ItemStore is3ItemStore)
         {
-            _s3Handler = s3Handler;
+            _is3ItemStore = is3ItemStore;
             Path = underlying.Key;
             Hash = underlying.ETag;
         }
@@ -19,7 +19,7 @@ namespace SimpleGallery.Aws.Model
         public string Hash { get; }
 
         public string Name => Path.Split('/').Last();
-        public string Url => _s3Handler.UrlForPath(Path);
+        public string Url => _is3ItemStore.UrlForPath(Path);
         public bool IsAlbum => false;
         public ISet<string> ChildPaths { get; } = new HashSet<string>();
         

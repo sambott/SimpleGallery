@@ -5,7 +5,7 @@ using SimpleGallery.Core.Model;
 
 namespace SimpleGallery.Aws
 {
-    public interface IDynamoDbHandler
+    public interface IDynamoDbIndex
     {
         IObservable<IAwsIndexItem<IAwsMediaItem>> ScanItems();
 

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SimpleGallery.Aws.Model;
 using Xunit;
@@ -29,7 +30,7 @@ namespace SimpleGallery.Aws.Tests
                 )
                 .ReturnsAsync(new DeleteItemResponse())
                 .Verifiable();
-            var handler = new DynamoDbHandler(client.Object, TableName);
+            var handler = new DynamoDbIndex(client.Object, TableName, Mock.Of<ILogger>());
 
             await handler.DeleteItem(PathName);
 
@@ -56,7 +57,7 @@ namespace SimpleGallery.Aws.Tests
                 )
                 .ReturnsAsync(new PutItemResponse())
                 .Verifiable();
-            var handler = new DynamoDbHandler(client.Object, TableName);
+            var handler = new DynamoDbIndex(client.Object, TableName, Mock.Of<ILogger>());
 
             await handler.WriteItem(item);
 

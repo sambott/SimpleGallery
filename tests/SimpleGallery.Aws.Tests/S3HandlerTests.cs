@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -27,7 +28,7 @@ namespace SimpleGallery.Aws.Tests
                     )
                     .ReturnsAsync(new GetObjectResponse() {ResponseStream = tempStream})
                     .Verifiable();
-                var handler = new S3Handler(client.Object, BucketName, LinkTtl);
+                var handler = new S3ItemStore(client.Object, BucketName, LinkTtl, Mock.Of<ILogger>());
 
                 using (var responseStream = await handler.ReadItem(Key))
                 {
@@ -46,7 +47,7 @@ namespace SimpleGallery.Aws.Tests
                 )
                 .ReturnsAsync(new DeleteObjectResponse())
                 .Verifiable();
-            var handler = new S3Handler(client.Object, BucketName, LinkTtl);
+            var handler = new S3ItemStore(client.Object, BucketName, LinkTtl, Mock.Of<ILogger>());
 
             await handler.DeleteItem(Key);
 
@@ -71,7 +72,7 @@ namespace SimpleGallery.Aws.Tests
                         ))
                     .ReturnsAsync(new PutObjectResponse())
                     .Verifiable();
-                var handler = new S3Handler(client.Object, BucketName, LinkTtl);
+                var handler = new S3ItemStore(client.Object, BucketName, LinkTtl, Mock.Of<ILogger>());
                 await handler.WriteItem(Key, tempStream);
             }
             client.Verify();
@@ -92,7 +93,7 @@ namespace SimpleGallery.Aws.Tests
                 )
                 .Returns("test_string")
                 .Verifiable();
-            var handler = new S3Handler(client.Object, BucketName, LinkTtl);
+            var handler = new S3ItemStore(client.Object, BucketName, LinkTtl, Mock.Of<ILogger>());
 
             var url = handler.UrlForPath(Key);
 

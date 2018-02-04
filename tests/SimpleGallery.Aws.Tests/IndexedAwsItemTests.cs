@@ -17,7 +17,7 @@ namespace SimpleGallery.Aws.Tests
                 ETag = "hash23",
                 Key = "path/to/item.jpg",
             };
-            var s3Handler = new Mock<IS3Handler>();
+            var s3Handler = new Mock<IS3ItemStore>();
             var item = new AwsGalleryImage(s3Object, s3Handler.Object);
             
             var index = new IndexedAwsItem("item.jpg", "path/to/item.jpg", new HashSet<string>(), "hash23", false);

@@ -1,34 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
-using Amazon.S3.Model;
+using Microsoft.Extensions.Logging;
 using SimpleGallery.Aws.Model;
-using SimpleGallery.Core.Model;
 
 namespace SimpleGallery.Aws
 {
-    public sealed class DynamoDbHandler : IDynamoDbHandler
+    public sealed class DynamoDbIndex : IDynamoDbIndex
     {
         private readonly IAmazonDynamoDB _dynamoClient;
         private readonly string _tableName;
+        private readonly ILogger _logger;
 
-        public DynamoDbHandler(IAmazonDynamoDB dynamoClient, string tableName)
+        public DynamoDbIndex(IAmazonDynamoDB dynamoClient, string tableName, ILogger logger)
         {
             _dynamoClient = dynamoClient;
             _tableName = tableName;
+            _logger = logger;
         }
 
         public IObservable<IAwsIndexItem<IAwsMediaItem>> ScanItems()
         {
+            _logger.LogDebug("Creating DynamoDB Scan Observable");
             return Observable.Create<IAwsIndexItem<IAwsMediaItem>>(async (obs, token) =>
             {
                 ScanResponse response;
+                int page = 0;
                 var request = new ScanRequest
                 {
                     TableName = _tableName,
@@ -38,9 +39,16 @@ namespace SimpleGallery.Aws
                 do
                 {
                     if (token.IsCancellationRequested) break;
+                    _logger.LogDebug($"Scanning DynamoDB from page {page}");
                     response = await _dynamoClient.ScanAsync(request, token);
-                    response.Items.ForEach(i => obs.OnNext(FromDynamoItem(i)));
+                    response.Items.ForEach(i =>
+                    {
+                        var item = FromDynamoItem(i);
+                        _logger.LogDebug($"Received DynamoDB item for {item.Path}");
+                        obs.OnNext(item);
+                    });
                     request.ExclusiveStartKey = response.LastEvaluatedKey;
+                    page++;
                 } while (response.LastEvaluatedKey != null && response.LastEvaluatedKey.Count != 0);
                 obs.OnCompleted();
             });
@@ -48,12 +56,14 @@ namespace SimpleGallery.Aws
 
         public async Task WriteItem(IAwsIndexItem<IAwsMediaItem> item)
         {
+            _logger.LogDebug($"Writing {item.Path} to DynamoDB");
             var dynamoItem = ToDynamoItem(item);
             await _dynamoClient.PutItemAsync(_tableName, dynamoItem);
         }
 
         public async Task DeleteItem(string itemPath)
         {
+            _logger.LogDebug($"Deleting {itemPath} from DynamoDB");
             var dynamoKey = ToDynamoKey(itemPath);
             await _dynamoClient.DeleteItemAsync(_tableName, dynamoKey);
         }
@@ -67,6 +77,7 @@ namespace SimpleGallery.Aws
         
         private Dictionary<string, AttributeValue> ToDynamoItem(IAwsIndexItem<IAwsMediaItem> item)
         {
+            _logger.LogTrace($"Serialising item [{item.Path}] from DynamoDB record");
             var dynamoItem = ToDynamoKey(item.Path);
             dynamoItem.Add("Name", new AttributeValue {S = item.Name});
             if (item.ChildPaths.Count > 0)
@@ -80,6 +91,7 @@ namespace SimpleGallery.Aws
 
         private IAwsIndexItem<IAwsMediaItem> FromDynamoItem(Dictionary<string, AttributeValue> dynamoItem)
         {
+            _logger.LogTrace("Deserialising item from DynamoDB record");
             var isAlbum = dynamoItem["IsAlbum"].BOOL;
             return new IndexedAwsItem(
                 path: dynamoItem["Path"].S,

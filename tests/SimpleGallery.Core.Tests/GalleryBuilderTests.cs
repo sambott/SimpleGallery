@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SimpleGallery.Core.Model;
-using SimpleGallery.Core.Model.MediaHandler;
+using SimpleGallery.Core.Model.MediaPreprocessor;
 using Xunit;
 
 namespace SimpleGallery.Core.Tests
@@ -48,12 +49,12 @@ namespace SimpleGallery.Core.Tests
             mockMediaStore.Setup(ms => ms.GetAllIndexItems()).ReturnsAsync(indexItems);
             mockMediaStore.Setup(ms => ms.GetAllItems()).ReturnsAsync(new List<IGalleryItem>());
 
-            var mediaHandler = new Mock<IMediaHandler>();
+            var mediaHandler = new Mock<IMediaPreprocessor>();
             mediaHandler.Setup(h =>
                 h.CanHandle(Match.Create<IGalleryItem>(_ => true))
             ).ReturnsAsync(true);
             
-            var builder = new GalleryBuilder<IGalleryItem, IGalleryItem, IIndexItem<IGalleryItem>>(mockMediaStore.Object, mediaHandler.Object);
+            var builder = new GalleryBuilder<IGalleryItem, IGalleryItem, IIndexItem<IGalleryItem>>(mockMediaStore.Object, mediaHandler.Object, Mock.Of<ILogger>());
             await builder.LoadItemSources();
 
             mockMediaStore.Setup(ms =>
@@ -93,12 +94,12 @@ namespace SimpleGallery.Core.Tests
             mockMediaStore.Setup(ms => ms.GetAllIndexItems()).ReturnsAsync(indexItems);
             mockMediaStore.Setup(ms => ms.GetAllThumbnails()).ReturnsAsync(new List<IGalleryItem>());
 
-            var mediaHandler = new Mock<IMediaHandler>();
+            var mediaHandler = new Mock<IMediaPreprocessor>();
             mediaHandler.Setup(h =>
                 h.CanHandle(Match.Create<IGalleryItem>(_ => true))
             ).ReturnsAsync(true);
             
-            var builder = new GalleryBuilder<IGalleryItem, IGalleryItem, IIndexItem<IGalleryItem>>(mockMediaStore.Object, mediaHandler.Object);
+            var builder = new GalleryBuilder<IGalleryItem, IGalleryItem, IIndexItem<IGalleryItem>>(mockMediaStore.Object, mediaHandler.Object, Mock.Of<ILogger>());
             await builder.LoadItemSources();
 
             var (added, removed, remaining) = builder.GetAddedRemovedRemaining();

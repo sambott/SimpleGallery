@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace SimpleGallery.Core.Model.MediaHandler
+namespace SimpleGallery.Core.Model.MediaPreprocessor
 {
-    public interface IMediaHandler
+    public interface IMediaPreprocessor
     {
         Task<bool> CanHandle(IGalleryItem item);
         Task<Stream> GenerateThumbnail(IGalleryItem item, Stream input);

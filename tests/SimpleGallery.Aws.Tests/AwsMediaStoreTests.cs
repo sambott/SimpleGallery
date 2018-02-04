@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SimpleGallery.Aws.Model;
 using Xunit;
@@ -15,10 +16,10 @@ namespace SimpleGallery.Aws.Tests
         [Fact]
         public async Task GetAllItemsUsesItemS3Bucket()
         {
-            var mItemSource = new Mock<IS3Handler>();
-            var mThumbSource = new Mock<IS3Handler>();
-            var mIndexSource = new Mock<IDynamoDbHandler>();
-            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object);
+            var mItemSource = new Mock<IS3ItemStore>();
+            var mThumbSource = new Mock<IS3ItemStore>();
+            var mIndexSource = new Mock<IDynamoDbIndex>();
+            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object, Mock.Of<ILogger>());
             var s3Object = new S3Object
             {
                 BucketName = "bucket",
@@ -40,10 +41,10 @@ namespace SimpleGallery.Aws.Tests
         [Fact]
         public async Task GetAllThumbsUsesThumbsS3Bucket()
         {
-            var mItemSource = new Mock<IS3Handler>();
-            var mThumbSource = new Mock<IS3Handler>();
-            var mIndexSource = new Mock<IDynamoDbHandler>();
-            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object);
+            var mItemSource = new Mock<IS3ItemStore>();
+            var mThumbSource = new Mock<IS3ItemStore>();
+            var mIndexSource = new Mock<IDynamoDbIndex>();
+            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object, Mock.Of<ILogger>());
             var s3Object = new S3Object
             {
                 BucketName = "bucket",
@@ -65,10 +66,10 @@ namespace SimpleGallery.Aws.Tests
         [Fact]
         public async Task GetAllIndexesUsesDynamo()
         {
-            var mItemSource = new Mock<IS3Handler>();
-            var mThumbSource = new Mock<IS3Handler>();
-            var mIndexSource = new Mock<IDynamoDbHandler>();
-            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object);
+            var mItemSource = new Mock<IS3ItemStore>();
+            var mThumbSource = new Mock<IS3ItemStore>();
+            var mIndexSource = new Mock<IDynamoDbIndex>();
+            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object, Mock.Of<ILogger>());
             var index = new IndexedAwsItem("name", "path", new HashSet<string>(), "hash", false);
             var indexList = new List<IndexedAwsItem> {index};
             mIndexSource.Setup(s => s.ScanItems())
@@ -84,10 +85,10 @@ namespace SimpleGallery.Aws.Tests
         [Fact]
         public async Task ReadsItemFromS3()
         {
-            var mItemSource = new Mock<IS3Handler>();
-            var mThumbSource = new Mock<IS3Handler>();
-            var mIndexSource = new Mock<IDynamoDbHandler>();
-            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object);
+            var mItemSource = new Mock<IS3ItemStore>();
+            var mThumbSource = new Mock<IS3ItemStore>();
+            var mIndexSource = new Mock<IDynamoDbIndex>();
+            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object, Mock.Of<ILogger>());
             using (var stream = new MemoryStream())
             {
                 mItemSource.Setup(s => s.ReadItem("123123"))
@@ -104,11 +105,11 @@ namespace SimpleGallery.Aws.Tests
         [Fact]
         public async Task UpdateThumnailUsesThumbStore()
         {
-            var mItemSource = new Mock<IS3Handler>();
-            var mThumbSource = new Mock<IS3Handler>();
-            var mIndexSource = new Mock<IDynamoDbHandler>();
+            var mItemSource = new Mock<IS3ItemStore>();
+            var mThumbSource = new Mock<IS3ItemStore>();
+            var mIndexSource = new Mock<IDynamoDbIndex>();
             var mMediaItem = new Mock<IAwsMediaItem>();
-            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object);
+            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object, Mock.Of<ILogger>());
             using (var stream = new MemoryStream())
             {
                 mMediaItem.Setup(i => i.Path).Returns("123");
@@ -125,10 +126,10 @@ namespace SimpleGallery.Aws.Tests
         [Fact]
         public async Task RemovesThumbFromS3()
         {
-            var mItemSource = new Mock<IS3Handler>();
-            var mThumbSource = new Mock<IS3Handler>();
-            var mIndexSource = new Mock<IDynamoDbHandler>();
-            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object);
+            var mItemSource = new Mock<IS3ItemStore>();
+            var mThumbSource = new Mock<IS3ItemStore>();
+            var mIndexSource = new Mock<IDynamoDbIndex>();
+            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object, Mock.Of<ILogger>());
             mThumbSource.Setup(s => s.DeleteItem("123123"))
                 .Returns(Task.CompletedTask).Verifiable();
 
@@ -140,11 +141,11 @@ namespace SimpleGallery.Aws.Tests
         [Fact]
         public async Task UpdateIndexUsesDynamo()
         {
-            var mItemSource = new Mock<IS3Handler>();
-            var mThumbSource = new Mock<IS3Handler>();
-            var mIndexSource = new Mock<IDynamoDbHandler>();
+            var mItemSource = new Mock<IS3ItemStore>();
+            var mThumbSource = new Mock<IS3ItemStore>();
+            var mIndexSource = new Mock<IDynamoDbIndex>();
             var mMediaItem = new Mock<IAwsMediaItem>();
-            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object);
+            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object, Mock.Of<ILogger>());
             mMediaItem.Setup(i => i.Name).Returns("123");
             mMediaItem.Setup(i => i.Path).Returns("456");
             mMediaItem.Setup(i => i.ChildPaths).Returns(new HashSet<string>());
@@ -162,10 +163,10 @@ namespace SimpleGallery.Aws.Tests
         [Fact]
         public async Task RemovesIndexFromDynamo()
         {
-            var mItemSource = new Mock<IS3Handler>();
-            var mThumbSource = new Mock<IS3Handler>();
-            var mIndexSource = new Mock<IDynamoDbHandler>();
-            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object);
+            var mItemSource = new Mock<IS3ItemStore>();
+            var mThumbSource = new Mock<IS3ItemStore>();
+            var mIndexSource = new Mock<IDynamoDbIndex>();
+            var store = new AwsMediaStore(mItemSource.Object, mThumbSource.Object, mIndexSource.Object, Mock.Of<ILogger>());
             mIndexSource.Setup(s => s.DeleteItem("123123"))
                 .Returns(Task.CompletedTask).Verifiable();
 

@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace SimpleGallery.Core.Model.MediaHandler
+namespace SimpleGallery.Core.Model.MediaPreprocessor
 {
-    public sealed class CompositeMediaHandler : IMediaHandler, IEnumerable<IMediaHandler>
+    public sealed class CompositeMediaPreprocessor : IMediaPreprocessor, IEnumerable<IMediaPreprocessor>
     {
-        private static readonly IComparer<IMediaHandler> HandlerComparer = new MediaHandlerComparer();
-        private readonly SortedSet<IMediaHandler> _components = new SortedSet<IMediaHandler>(HandlerComparer);
+        private static readonly IComparer<IMediaPreprocessor> HandlerComparer = new MediaPreprocessorComparer();
+        private readonly SortedSet<IMediaPreprocessor> _components = new SortedSet<IMediaPreprocessor>(HandlerComparer);
 
         public int Priority => 0;
 
-        public bool Add(IMediaHandler item)
+        public bool Add(IMediaPreprocessor item)
         {
             return _components.Add(item);
         }
@@ -28,7 +28,7 @@ namespace SimpleGallery.Core.Model.MediaHandler
             return await handler.GenerateThumbnail(item, input);
         }
 
-        private async Task<IMediaHandler> GetHandler(IGalleryItem item)
+        private async Task<IMediaPreprocessor> GetHandler(IGalleryItem item)
         {
             foreach (var handler in _components)
             {
@@ -37,7 +37,7 @@ namespace SimpleGallery.Core.Model.MediaHandler
             return null;
         }
 
-        public IEnumerator<IMediaHandler> GetEnumerator()
+        public IEnumerator<IMediaPreprocessor> GetEnumerator()
         {
             return _components.GetEnumerator();
         }

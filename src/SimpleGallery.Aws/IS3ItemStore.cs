@@ -5,7 +5,7 @@ using Amazon.S3.Model;
 
 namespace SimpleGallery.Aws
 {
-    public interface IS3Handler
+    public interface IS3ItemStore
     {
         Task<Stream> ReadItem(string path);
         Task WriteItem(string path, Stream content);

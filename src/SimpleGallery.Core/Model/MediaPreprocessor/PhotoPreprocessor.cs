@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp;
 
-namespace SimpleGallery.Core.Model.MediaHandler
+namespace SimpleGallery.Core.Model.MediaPreprocessor
 {
-    public sealed class PhotoHandler : IMediaHandler
+    public sealed class PhotoPreprocessor : IMediaPreprocessor
     {
         private readonly HashSet<string> _supported = new HashSet<string>
         {
@@ -18,10 +19,12 @@ namespace SimpleGallery.Core.Model.MediaHandler
         };
 
         private ImageSize _thumbnailSize;
+        private readonly ILogger _logger;
 
-        public PhotoHandler(ImageSize thumbnailSize, int priority )
+        public PhotoPreprocessor(ImageSize thumbnailSize, int priority, ILogger logger)
         {
             _thumbnailSize = thumbnailSize;
+            _logger = logger;
             Priority = priority;
         }
 
@@ -36,6 +39,7 @@ namespace SimpleGallery.Core.Model.MediaHandler
 
         public Task<Stream> GenerateThumbnail(IGalleryItem item, Stream input)
         {
+            _logger.LogDebug($"Creating thumbnail for image {item.Path}");
             var output = new MemoryStream();
             using (var image = Image.Load(input, out var format))
             {
@@ -44,7 +48,6 @@ namespace SimpleGallery.Core.Model.MediaHandler
             }
             output.Seek(0, 0);
             return Task.FromResult<Stream>(output);
-
         }
 
         public int Priority { get; }

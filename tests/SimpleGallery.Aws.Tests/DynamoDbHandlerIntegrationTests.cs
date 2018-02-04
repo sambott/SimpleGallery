@@ -4,6 +4,8 @@ using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Amazon;
 using Amazon.DynamoDBv2;
+using Microsoft.Extensions.Logging;
+using Moq;
 using SimpleGallery.Aws.Model;
 using SimpleGallery.Core.Model;
 using SimpleGallery.Core.Tests;
@@ -19,7 +21,7 @@ namespace SimpleGallery.Aws.Tests
         public async Task CanGetAllItems()
         {
             var dynamoClient = new AmazonDynamoDBClient(RegionEndpoint.EUWest1);
-            var handler = new DynamoDbHandler(dynamoClient, TableName);
+            var handler = new DynamoDbIndex(dynamoClient, TableName, Mock.Of<ILogger>());
 
             var items = await handler.ScanItems().ToList().ToTask();
             var itemSet = new HashSet<IAwsIndexItem<IAwsMediaItem>>(items);
