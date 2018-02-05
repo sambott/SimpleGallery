@@ -2,10 +2,6 @@
 {
     public class AppOptions
     {
-        public AppOptions()
-        {
-            
-        }
         
         public GalleryBuilderOptions GalleryBuilder { get; set; }
         

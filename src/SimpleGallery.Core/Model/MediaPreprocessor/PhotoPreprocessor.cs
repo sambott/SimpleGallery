@@ -18,7 +18,7 @@ namespace SimpleGallery.Core.Model.MediaPreprocessor
             "bmp",
         };
 
-        private ImageSize _thumbnailSize;
+        private readonly ImageSize _thumbnailSize;
         private readonly ILogger _logger;
 
         public PhotoPreprocessor(ImageSize thumbnailSize, int priority, ILogger logger)

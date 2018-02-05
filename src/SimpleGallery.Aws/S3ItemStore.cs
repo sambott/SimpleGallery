@@ -48,7 +48,7 @@ namespace SimpleGallery.Aws
             await _client.DeleteObjectAsync(_bucketName, path);
         }
 
-        public IObservable<S3Object> GetS3Objects(string path = "")
+        public IObservable<S3Object> GetS3Objects(string path)
         {
             _logger.LogDebug($"Creating listing observable for S3 from {path}.");
             return Observable.Create<S3Object>(async (obs, token) =>
@@ -62,7 +62,11 @@ namespace SimpleGallery.Aws
                 };
                 do
                 {
-                    if (token.IsCancellationRequested) break;
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
                     _logger.LogDebug($"Requesting S3 keys from continuation \"{request.ContinuationToken ?? ""}\" at {path}.");
                     response = await _client.ListObjectsV2Async(request, token);
                     response.S3Objects.ForEach(obs.OnNext);

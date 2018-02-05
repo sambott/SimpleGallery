@@ -19,21 +19,25 @@ namespace SimpleGallery.Core.Model.MediaPreprocessor
 
         public async Task<bool> CanHandle(IGalleryItem item)
         {
-            return (await GetHandler(item)) != null;
+            return (await GetHandler(item).ConfigureAwait(false)) != null;
         }
 
         public async Task<Stream> GenerateThumbnail(IGalleryItem item, Stream input)
         {
-            var handler = await GetHandler(item);
-            return await handler.GenerateThumbnail(item, input);
+            var handler = await GetHandler(item).ConfigureAwait(false);
+            return await handler.GenerateThumbnail(item, input).ConfigureAwait(false);
         }
 
         private async Task<IMediaPreprocessor> GetHandler(IGalleryItem item)
         {
             foreach (var handler in _components)
             {
-                if (await handler.CanHandle(item)) return handler;
+                if (await handler.CanHandle(item).ConfigureAwait(false))
+                {
+                    return handler;
+                }
             }
+
             return null;
         }
 

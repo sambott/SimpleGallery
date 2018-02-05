@@ -35,7 +35,7 @@ namespace SimpleGallery.Api
             _cts.Cancel();
 
             // Wait until the task completes or the stop token triggers
-            await Task.WhenAny(_executingTask, Task.Delay(-1, cancellationToken));
+            await Task.WhenAny(_executingTask, Task.Delay(-1, cancellationToken)).ConfigureAwait(false);
 
             // Throw if cancellation triggered
             cancellationToken.ThrowIfCancellationRequested();

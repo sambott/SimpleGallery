@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Amazon.S3.Model;
 
 namespace SimpleGallery.Aws.Model
 {
-    public sealed class AwsGalleryImage : IAwsMediaItem
+    public sealed class AwsGalleryImage : IAwsMediaItem, IEquatable<AwsGalleryImage>
     {
         private readonly IS3ItemStore _is3ItemStore;
 
@@ -24,16 +25,28 @@ namespace SimpleGallery.Aws.Model
         public ISet<string> ChildPaths { get; } = new HashSet<string>();
         
 
-        private bool Equals(AwsGalleryImage other)
+        public bool Equals(AwsGalleryImage other)
         {
             return  string.Equals(Hash, other.Hash) && string.Equals(Name, other.Name) && string.Equals(Path, other.Path) && IsAlbum == other.IsAlbum;
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
             return Equals((AwsGalleryImage) obj);
         }
 

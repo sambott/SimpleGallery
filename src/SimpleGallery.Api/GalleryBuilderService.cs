@@ -26,9 +26,9 @@ namespace SimpleGallery.Api
             while (!cancellationToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Triggering Gallery Build");
-                await _galleryBuilder.Build();
+                await _galleryBuilder.Build().ConfigureAwait(false);
                 _logger.LogInformation("Gallery Build Complete");
-                await Task.Delay(_config.RebuildIntervalSeconds, cancellationToken);
+                await Task.Delay(_config.RebuildIntervalSeconds, cancellationToken).ConfigureAwait(false);
             }
         }
     }

@@ -20,12 +20,10 @@ namespace SimpleGallery.Api
     // ReSharper disable once ClassNeverInstantiated.Global
     public class Startup
     {
-        private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
 
         public Startup(IConfiguration configuration, ILoggerFactory loggerFactory)
         {
-            _loggerFactory = loggerFactory;
             Configuration = configuration;
 
             _logger = loggerFactory.CreateLogger("Startup");
@@ -78,7 +76,9 @@ namespace SimpleGallery.Api
         {
             _logger.LogDebug("Configure App...");
             if (env.IsDevelopment())
+            {
                 app.UseDeveloperExceptionPage();
+            }
 
             app.UseMvc();
         }

@@ -5,7 +5,7 @@ using SimpleGallery.Core.Model;
 
 namespace SimpleGallery.Aws.Model
 {
-    public sealed class IndexedAwsItem : IAwsIndexItem<IAwsMediaItem>
+    public sealed class IndexedAwsItem : IAwsIndexItem<IAwsMediaItem>, IEquatable<IndexedAwsItem>
     {
 
         public IndexedAwsItem(string name, string path, ISet<string> childPaths, string hash, bool isAlbum)
@@ -36,16 +36,28 @@ namespace SimpleGallery.Aws.Model
             return string.Equals(Name, other.Name) && string.Equals(Path, other.Path) && ChildPaths.SetEquals(other.ChildPaths) && IsAlbum == other.IsAlbum;
         }
 
-        private bool Equals(IndexedAwsItem other)
+        public bool Equals(IndexedAwsItem other)
         {
             return Equals((IMediaItem) other) && string.Equals(Hash, other.Hash);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
             return Equals((IndexedAwsItem) obj);
         }
 

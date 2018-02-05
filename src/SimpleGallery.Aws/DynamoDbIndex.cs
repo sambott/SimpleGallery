@@ -38,7 +38,11 @@ namespace SimpleGallery.Aws
                 };
                 do
                 {
-                    if (token.IsCancellationRequested) break;
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
                     _logger.LogDebug($"Scanning DynamoDB from page {page}");
                     response = await _dynamoClient.ScanAsync(request, token);
                     response.Items.ForEach(i =>
@@ -50,6 +54,7 @@ namespace SimpleGallery.Aws
                     request.ExclusiveStartKey = response.LastEvaluatedKey;
                     page++;
                 } while (response.LastEvaluatedKey != null && response.LastEvaluatedKey.Count != 0);
+
                 obs.OnCompleted();
             });
         }
@@ -68,7 +73,7 @@ namespace SimpleGallery.Aws
             await _dynamoClient.DeleteItemAsync(_tableName, dynamoKey);
         }
 
-        private Dictionary<string, AttributeValue> ToDynamoKey(string itemPath)
+        private static Dictionary<string, AttributeValue> ToDynamoKey(string itemPath)
         {
             return new Dictionary<string, AttributeValue> {
                 { "Path", new AttributeValue { S = itemPath } },

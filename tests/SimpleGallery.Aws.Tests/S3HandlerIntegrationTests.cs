@@ -63,7 +63,7 @@ namespace SimpleGallery.Aws.Tests
             {
                 var s3Handler = new S3ItemStore(s3, BucketName, LinkTtl, Mock.Of<ILogger>());
 
-                var objects = await s3Handler.GetS3Objects().ToList().ToTask();
+                var objects = await s3Handler.GetS3Objects("").ToList().ToTask();
 
                 Assert.Equal(_expectedKeys.ToHashSet(), objects.Select(o => o.Key).ToHashSet());
             }

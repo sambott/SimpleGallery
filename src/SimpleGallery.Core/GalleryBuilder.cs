@@ -49,10 +49,12 @@ namespace SimpleGallery.Core
             var tasks = allMediaItems.Select(
                 async item =>
                 {
-                    if (await _mediaPreprocessor.CanHandle(item))
+                    if (await _mediaPreprocessor.CanHandle(item).ConfigureAwait(false))
+                    {
                         results.Enqueue(item);
+                    }
                 });
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
             return results;
         }
 
@@ -103,7 +105,7 @@ namespace SimpleGallery.Core
             _logger.LogInformation("Building Gallery");
             await LoadItemSources().ConfigureAwait(false);
 
-            await MakeThumbnailAndIndexConsistent();
+            await MakeThumbnailAndIndexConsistent().ConfigureAwait(false);
             
             var (added, removed, remaining) = GetAddedRemovedRemaining();
 
@@ -128,12 +130,12 @@ namespace SimpleGallery.Core
 
         private async Task UpdateIndexAndThumbnail(TMediaItem item)
         {
-            if (!await _mediaPreprocessor.CanHandle(item))
+            if (!await _mediaPreprocessor.CanHandle(item).ConfigureAwait(false))
             {
                 // Should not get here, unknown types were filtered out
                 var msg = $"Could not create thumbnail for {item.Path}, no Preprocessor found.";
                 _logger.LogCritical(msg);
-                throw new Exception(msg);
+                throw new InvalidOperationException(msg);
             }
 
             try

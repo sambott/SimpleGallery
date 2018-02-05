@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using SimpleGallery.Core.Model;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SimpleGallery.Aws.Model
 {
-    public sealed class AwsGalleryAlbum : IAwsMediaItem
+    public sealed class AwsGalleryAlbum : IAwsMediaItem, IEquatable<AwsGalleryAlbum>
     {
         public AwsGalleryAlbum(string name, string path, string url, ISet<string> childPaths)
         {
@@ -21,16 +21,28 @@ namespace SimpleGallery.Aws.Model
         public string Hash { get; } = ""; // TODO should generate for albums??
         
 
-        private bool Equals(AwsGalleryAlbum other)
+        public bool Equals(AwsGalleryAlbum other)
         {
             return  string.Equals(Hash, other.Hash) && string.Equals(Name, other.Name) && string.Equals(Path, other.Path) && ChildPaths.SetEquals(other.ChildPaths) && IsAlbum == other.IsAlbum;
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
             return Equals((AwsGalleryAlbum) obj);
         }
 
