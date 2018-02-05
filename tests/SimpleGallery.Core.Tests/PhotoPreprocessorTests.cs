@@ -10,7 +10,7 @@ using Xunit;
 
 namespace SimpleGallery.Core.Tests
 {
-    public class PhotoHandlerTests
+    public class PhotoPreprocessorTests
     {
         [Fact]
         public async Task CanOpenJpg()

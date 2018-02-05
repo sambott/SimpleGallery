@@ -24,13 +24,17 @@ namespace SimpleGallery.Aws.Model
         public bool IsAlbum { get; }
 
         public bool RequiresUpdate(IAwsMediaItem item) => !UpToDateWith(item);
-        
+
         private bool UpToDateWith(IAwsMediaItem item)
         {
-            if (ReferenceEquals(null, item)) return false;
+            if (ReferenceEquals(null, item))
+            {
+                return false;
+            }
+
             return Equals((IMediaItem) item) && string.Equals(Hash, item.Hash);
         }
-        
+
         private bool Equals(IMediaItem other)
         {
             return string.Equals(Name, other.Name) && string.Equals(Path, other.Path) && ChildPaths.SetEquals(other.ChildPaths) && IsAlbum == other.IsAlbum;

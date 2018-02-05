@@ -7,7 +7,7 @@ using Xunit;
 
 namespace SimpleGallery.Core.Tests
 {
-    public class CompositeMediaHandlerTests
+    public class CompositeMediaPreprocessorTests
     {
         [Fact]
         public async Task CompositeHandlerDoesntHandleIfItsComponentsCant()

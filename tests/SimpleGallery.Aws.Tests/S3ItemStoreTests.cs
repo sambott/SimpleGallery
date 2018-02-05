@@ -11,7 +11,7 @@ using Xunit;
 
 namespace SimpleGallery.Aws.Tests
 {
-    public class S3HandlerTests
+    public class S3ItemStoreTests
     {
         private const string BucketName = "abc213";
         private const string Key = "321cba";

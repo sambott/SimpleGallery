@@ -13,7 +13,7 @@ using Xunit;
 
 namespace SimpleGallery.Aws.Tests
 {
-    public class S3HandlerIntegrationTests
+    public class S3ItemStoreIntegrationTests
     {
         private const string BucketName = "sam-testing-bucket";
         private static readonly TimeSpan LinkTtl = TimeSpan.FromHours(1);

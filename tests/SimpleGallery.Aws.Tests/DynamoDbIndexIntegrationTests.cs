@@ -13,7 +13,7 @@ using Xunit;
 
 namespace SimpleGallery.Aws.Tests
 {
-    public class DynamoDbHandlerIntegrationTests
+    public class DynamoDbIndexIntegrationTests
     {
         private const string TableName = "TestDynamoGalleryTable";
         

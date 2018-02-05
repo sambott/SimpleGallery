@@ -49,7 +49,7 @@ namespace SimpleGallery.Api
             _logger.LogDebug("Instantiating GalleryBuilder");
             GalleryBuilder = new GalleryBuilder<IAwsMediaItem, IAwsMediaItem, IAwsIndexItem<IAwsMediaItem>>(mediaStore, mediaHandler, loggerFactory.CreateLogger("GalleryBuilder"));
             _logger.LogDebug("Instantiating GalleryViewer");
-            GalleryViewer = new GalleryViewer();
+            GalleryViewer = new GalleryViewer<IAwsMediaItem, IAwsMediaItem, IAwsIndexItem<IAwsMediaItem>>(mediaStore, TimeSpan.FromMinutes(5), loggerFactory.CreateLogger("GalleryViewer"));
         }
 
         private IConfiguration Configuration { get; }

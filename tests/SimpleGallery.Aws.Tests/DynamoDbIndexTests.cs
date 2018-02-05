@@ -10,7 +10,7 @@ using Xunit;
 
 namespace SimpleGallery.Aws.Tests
 {
-    public class DynamoDbHandlerTests
+    public class DynamoDbIndexTests
     {
         private const string TableName = "abc123";
         private const string PathName = "123abc";
